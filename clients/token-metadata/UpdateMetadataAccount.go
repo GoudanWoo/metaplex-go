@@ -10,14 +10,13 @@ import (
 	ag_treeout "github.com/gagliardetto/treeout"
 )
 
-// Update a Metadata
+// UpdateMetadataAccount is the `UpdateMetadataAccount` instruction.
 type UpdateMetadataAccount struct {
-	Args *UpdateMetadataAccountArgs
 
 	// [0] = [WRITE] metadata
 	// ··········· Metadata account
 	//
-	// [1] = [SIGNER] updateAuthorityKey
+	// [1] = [SIGNER] updateAuthority
 	// ··········· Update authority key
 	ag_solanago.AccountMetaSlice `bin:"-"`
 }
@@ -28,12 +27,6 @@ func NewUpdateMetadataAccountInstructionBuilder() *UpdateMetadataAccount {
 		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 2),
 	}
 	return nd
-}
-
-// SetArgs sets the "args" parameter.
-func (inst *UpdateMetadataAccount) SetArgs(args UpdateMetadataAccountArgs) *UpdateMetadataAccount {
-	inst.Args = &args
-	return inst
 }
 
 // SetMetadataAccount sets the "metadata" account.
@@ -49,16 +42,16 @@ func (inst *UpdateMetadataAccount) GetMetadataAccount() *ag_solanago.AccountMeta
 	return inst.AccountMetaSlice.Get(0)
 }
 
-// SetUpdateAuthorityKeyAccount sets the "updateAuthorityKey" account.
+// SetUpdateAuthorityAccount sets the "updateAuthority" account.
 // Update authority key
-func (inst *UpdateMetadataAccount) SetUpdateAuthorityKeyAccount(updateAuthorityKey ag_solanago.PublicKey) *UpdateMetadataAccount {
-	inst.AccountMetaSlice[1] = ag_solanago.Meta(updateAuthorityKey).SIGNER()
+func (inst *UpdateMetadataAccount) SetUpdateAuthorityAccount(updateAuthority ag_solanago.PublicKey) *UpdateMetadataAccount {
+	inst.AccountMetaSlice[1] = ag_solanago.Meta(updateAuthority).SIGNER()
 	return inst
 }
 
-// GetUpdateAuthorityKeyAccount gets the "updateAuthorityKey" account.
+// GetUpdateAuthorityAccount gets the "updateAuthority" account.
 // Update authority key
-func (inst *UpdateMetadataAccount) GetUpdateAuthorityKeyAccount() *ag_solanago.AccountMeta {
+func (inst *UpdateMetadataAccount) GetUpdateAuthorityAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(1)
 }
 
@@ -80,20 +73,13 @@ func (inst UpdateMetadataAccount) ValidateAndBuild() (*Instruction, error) {
 }
 
 func (inst *UpdateMetadataAccount) Validate() error {
-	// Check whether all (required) parameters are set:
-	{
-		if inst.Args == nil {
-			return errors.New("Args parameter is not set")
-		}
-	}
-
 	// Check whether all (required) accounts are set:
 	{
 		if inst.AccountMetaSlice[0] == nil {
 			return errors.New("accounts.Metadata is not set")
 		}
 		if inst.AccountMetaSlice[1] == nil {
-			return errors.New("accounts.UpdateAuthorityKey is not set")
+			return errors.New("accounts.UpdateAuthority is not set")
 		}
 	}
 	return nil
@@ -108,45 +94,30 @@ func (inst *UpdateMetadataAccount) EncodeToTree(parent ag_treeout.Branches) {
 				ParentFunc(func(instructionBranch ag_treeout.Branches) {
 
 					// Parameters of the instruction:
-					instructionBranch.Child("Params[len=1]").ParentFunc(func(paramsBranch ag_treeout.Branches) {
-						paramsBranch.Child(ag_format.Param("Args", *inst.Args))
-					})
+					instructionBranch.Child("Params[len=0]").ParentFunc(func(paramsBranch ag_treeout.Branches) {})
 
 					// Accounts of the instruction:
 					instructionBranch.Child("Accounts[len=2]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
-						accountsBranch.Child(ag_format.Meta("          metadata", inst.AccountMetaSlice.Get(0)))
-						accountsBranch.Child(ag_format.Meta("updateAuthorityKey", inst.AccountMetaSlice.Get(1)))
+						accountsBranch.Child(ag_format.Meta("       metadata", inst.AccountMetaSlice.Get(0)))
+						accountsBranch.Child(ag_format.Meta("updateAuthority", inst.AccountMetaSlice.Get(1)))
 					})
 				})
 		})
 }
 
 func (obj UpdateMetadataAccount) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
-	// Serialize `Args` param:
-	err = encoder.Encode(obj.Args)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 func (obj *UpdateMetadataAccount) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
-	// Deserialize `Args`:
-	err = decoder.Decode(&obj.Args)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
 // NewUpdateMetadataAccountInstruction declares a new UpdateMetadataAccount instruction with the provided parameters and accounts.
 func NewUpdateMetadataAccountInstruction(
-	// Parameters:
-	args UpdateMetadataAccountArgs,
 	// Accounts:
 	metadata ag_solanago.PublicKey,
-	updateAuthorityKey ag_solanago.PublicKey) *UpdateMetadataAccount {
+	updateAuthority ag_solanago.PublicKey) *UpdateMetadataAccount {
 	return NewUpdateMetadataAccountInstructionBuilder().
-		SetArgs(args).
 		SetMetadataAccount(metadata).
-		SetUpdateAuthorityKeyAccount(updateAuthorityKey)
+		SetUpdateAuthorityAccount(updateAuthority)
 }

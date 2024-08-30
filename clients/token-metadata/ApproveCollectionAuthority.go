@@ -10,34 +10,31 @@ import (
 	ag_treeout "github.com/gagliardetto/treeout"
 )
 
-// Approve another account to verify nfts beloging to a collection, [verify_collection] on the collection NFT
+// ApproveCollectionAuthority is the `ApproveCollectionAuthority` instruction.
 type ApproveCollectionAuthority struct {
 
-	// [0] = [WRITE] collectionAuthorityRecordPDA
+	// [0] = [WRITE] collectionAuthorityRecord
 	// ··········· Collection Authority Record PDA
 	//
-	// [1] = [SIGNER] collectionUpdateAuthority
-	// ··········· Update Authority of Collection NFT
-	//
-	// [2] = [SIGNER] payer
-	// ··········· Payer
-	//
-	// [3] = [] collectionAuthority
+	// [1] = [] newCollectionAuthority
 	// ··········· A Collection Authority
 	//
-	// [4] = [] collectionMetadata
+	// [2] = [WRITE, SIGNER] updateAuthority
+	// ··········· Update Authority of Collection NFT
+	//
+	// [3] = [WRITE, SIGNER] payer
+	// ··········· Payer
+	//
+	// [4] = [] metadata
 	// ··········· Collection Metadata account
 	//
-	// [5] = [] collectionMint
+	// [5] = [] mint
 	// ··········· Mint of Collection Metadata
 	//
-	// [6] = [] tokenProgram
-	// ··········· Token program
-	//
-	// [7] = [] system
+	// [6] = [] systemProgram
 	// ··········· System program
 	//
-	// [8] = [] rent
+	// [7] = [] rent
 	// ··········· Rent info
 	ag_solanago.AccountMetaSlice `bin:"-"`
 }
@@ -45,126 +42,113 @@ type ApproveCollectionAuthority struct {
 // NewApproveCollectionAuthorityInstructionBuilder creates a new `ApproveCollectionAuthority` instruction builder.
 func NewApproveCollectionAuthorityInstructionBuilder() *ApproveCollectionAuthority {
 	nd := &ApproveCollectionAuthority{
-		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 9),
+		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 8),
 	}
 	return nd
 }
 
-// SetCollectionAuthorityRecordPDAAccount sets the "collectionAuthorityRecordPDA" account.
+// SetCollectionAuthorityRecordAccount sets the "collectionAuthorityRecord" account.
 // Collection Authority Record PDA
-func (inst *ApproveCollectionAuthority) SetCollectionAuthorityRecordPDAAccount(collectionAuthorityRecordPDA ag_solanago.PublicKey) *ApproveCollectionAuthority {
-	inst.AccountMetaSlice[0] = ag_solanago.Meta(collectionAuthorityRecordPDA).WRITE()
+func (inst *ApproveCollectionAuthority) SetCollectionAuthorityRecordAccount(collectionAuthorityRecord ag_solanago.PublicKey) *ApproveCollectionAuthority {
+	inst.AccountMetaSlice[0] = ag_solanago.Meta(collectionAuthorityRecord).WRITE()
 	return inst
 }
 
-// GetCollectionAuthorityRecordPDAAccount gets the "collectionAuthorityRecordPDA" account.
+// GetCollectionAuthorityRecordAccount gets the "collectionAuthorityRecord" account.
 // Collection Authority Record PDA
-func (inst *ApproveCollectionAuthority) GetCollectionAuthorityRecordPDAAccount() *ag_solanago.AccountMeta {
+func (inst *ApproveCollectionAuthority) GetCollectionAuthorityRecordAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(0)
 }
 
-// SetCollectionUpdateAuthorityAccount sets the "collectionUpdateAuthority" account.
-// Update Authority of Collection NFT
-func (inst *ApproveCollectionAuthority) SetCollectionUpdateAuthorityAccount(collectionUpdateAuthority ag_solanago.PublicKey) *ApproveCollectionAuthority {
-	inst.AccountMetaSlice[1] = ag_solanago.Meta(collectionUpdateAuthority).SIGNER()
+// SetNewCollectionAuthorityAccount sets the "newCollectionAuthority" account.
+// A Collection Authority
+func (inst *ApproveCollectionAuthority) SetNewCollectionAuthorityAccount(newCollectionAuthority ag_solanago.PublicKey) *ApproveCollectionAuthority {
+	inst.AccountMetaSlice[1] = ag_solanago.Meta(newCollectionAuthority)
 	return inst
 }
 
-// GetCollectionUpdateAuthorityAccount gets the "collectionUpdateAuthority" account.
-// Update Authority of Collection NFT
-func (inst *ApproveCollectionAuthority) GetCollectionUpdateAuthorityAccount() *ag_solanago.AccountMeta {
+// GetNewCollectionAuthorityAccount gets the "newCollectionAuthority" account.
+// A Collection Authority
+func (inst *ApproveCollectionAuthority) GetNewCollectionAuthorityAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(1)
+}
+
+// SetUpdateAuthorityAccount sets the "updateAuthority" account.
+// Update Authority of Collection NFT
+func (inst *ApproveCollectionAuthority) SetUpdateAuthorityAccount(updateAuthority ag_solanago.PublicKey) *ApproveCollectionAuthority {
+	inst.AccountMetaSlice[2] = ag_solanago.Meta(updateAuthority).WRITE().SIGNER()
+	return inst
+}
+
+// GetUpdateAuthorityAccount gets the "updateAuthority" account.
+// Update Authority of Collection NFT
+func (inst *ApproveCollectionAuthority) GetUpdateAuthorityAccount() *ag_solanago.AccountMeta {
+	return inst.AccountMetaSlice.Get(2)
 }
 
 // SetPayerAccount sets the "payer" account.
 // Payer
 func (inst *ApproveCollectionAuthority) SetPayerAccount(payer ag_solanago.PublicKey) *ApproveCollectionAuthority {
-	inst.AccountMetaSlice[2] = ag_solanago.Meta(payer).SIGNER()
+	inst.AccountMetaSlice[3] = ag_solanago.Meta(payer).WRITE().SIGNER()
 	return inst
 }
 
 // GetPayerAccount gets the "payer" account.
 // Payer
 func (inst *ApproveCollectionAuthority) GetPayerAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(2)
-}
-
-// SetCollectionAuthorityAccount sets the "collectionAuthority" account.
-// A Collection Authority
-func (inst *ApproveCollectionAuthority) SetCollectionAuthorityAccount(collectionAuthority ag_solanago.PublicKey) *ApproveCollectionAuthority {
-	inst.AccountMetaSlice[3] = ag_solanago.Meta(collectionAuthority)
-	return inst
-}
-
-// GetCollectionAuthorityAccount gets the "collectionAuthority" account.
-// A Collection Authority
-func (inst *ApproveCollectionAuthority) GetCollectionAuthorityAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(3)
 }
 
-// SetCollectionMetadataAccount sets the "collectionMetadata" account.
+// SetMetadataAccount sets the "metadata" account.
 // Collection Metadata account
-func (inst *ApproveCollectionAuthority) SetCollectionMetadataAccount(collectionMetadata ag_solanago.PublicKey) *ApproveCollectionAuthority {
-	inst.AccountMetaSlice[4] = ag_solanago.Meta(collectionMetadata)
+func (inst *ApproveCollectionAuthority) SetMetadataAccount(metadata ag_solanago.PublicKey) *ApproveCollectionAuthority {
+	inst.AccountMetaSlice[4] = ag_solanago.Meta(metadata)
 	return inst
 }
 
-// GetCollectionMetadataAccount gets the "collectionMetadata" account.
+// GetMetadataAccount gets the "metadata" account.
 // Collection Metadata account
-func (inst *ApproveCollectionAuthority) GetCollectionMetadataAccount() *ag_solanago.AccountMeta {
+func (inst *ApproveCollectionAuthority) GetMetadataAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(4)
 }
 
-// SetCollectionMintAccount sets the "collectionMint" account.
+// SetMintAccount sets the "mint" account.
 // Mint of Collection Metadata
-func (inst *ApproveCollectionAuthority) SetCollectionMintAccount(collectionMint ag_solanago.PublicKey) *ApproveCollectionAuthority {
-	inst.AccountMetaSlice[5] = ag_solanago.Meta(collectionMint)
+func (inst *ApproveCollectionAuthority) SetMintAccount(mint ag_solanago.PublicKey) *ApproveCollectionAuthority {
+	inst.AccountMetaSlice[5] = ag_solanago.Meta(mint)
 	return inst
 }
 
-// GetCollectionMintAccount gets the "collectionMint" account.
+// GetMintAccount gets the "mint" account.
 // Mint of Collection Metadata
-func (inst *ApproveCollectionAuthority) GetCollectionMintAccount() *ag_solanago.AccountMeta {
+func (inst *ApproveCollectionAuthority) GetMintAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(5)
 }
 
-// SetTokenProgramAccount sets the "tokenProgram" account.
-// Token program
-func (inst *ApproveCollectionAuthority) SetTokenProgramAccount(tokenProgram ag_solanago.PublicKey) *ApproveCollectionAuthority {
-	inst.AccountMetaSlice[6] = ag_solanago.Meta(tokenProgram)
+// SetSystemProgramAccount sets the "systemProgram" account.
+// System program
+func (inst *ApproveCollectionAuthority) SetSystemProgramAccount(systemProgram ag_solanago.PublicKey) *ApproveCollectionAuthority {
+	inst.AccountMetaSlice[6] = ag_solanago.Meta(systemProgram)
 	return inst
 }
 
-// GetTokenProgramAccount gets the "tokenProgram" account.
-// Token program
-func (inst *ApproveCollectionAuthority) GetTokenProgramAccount() *ag_solanago.AccountMeta {
+// GetSystemProgramAccount gets the "systemProgram" account.
+// System program
+func (inst *ApproveCollectionAuthority) GetSystemProgramAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(6)
-}
-
-// SetSystemAccount sets the "system" account.
-// System program
-func (inst *ApproveCollectionAuthority) SetSystemAccount(system ag_solanago.PublicKey) *ApproveCollectionAuthority {
-	inst.AccountMetaSlice[7] = ag_solanago.Meta(system)
-	return inst
-}
-
-// GetSystemAccount gets the "system" account.
-// System program
-func (inst *ApproveCollectionAuthority) GetSystemAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(7)
 }
 
 // SetRentAccount sets the "rent" account.
 // Rent info
 func (inst *ApproveCollectionAuthority) SetRentAccount(rent ag_solanago.PublicKey) *ApproveCollectionAuthority {
-	inst.AccountMetaSlice[8] = ag_solanago.Meta(rent)
+	inst.AccountMetaSlice[7] = ag_solanago.Meta(rent)
 	return inst
 }
 
-// GetRentAccount gets the "rent" account.
+// GetRentAccount gets the "rent" account (optional).
 // Rent info
 func (inst *ApproveCollectionAuthority) GetRentAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(8)
+	return inst.AccountMetaSlice.Get(7)
 }
 
 func (inst ApproveCollectionAuthority) Build() *Instruction {
@@ -188,32 +172,29 @@ func (inst *ApproveCollectionAuthority) Validate() error {
 	// Check whether all (required) accounts are set:
 	{
 		if inst.AccountMetaSlice[0] == nil {
-			return errors.New("accounts.CollectionAuthorityRecordPDA is not set")
+			return errors.New("accounts.CollectionAuthorityRecord is not set")
 		}
 		if inst.AccountMetaSlice[1] == nil {
-			return errors.New("accounts.CollectionUpdateAuthority is not set")
+			return errors.New("accounts.NewCollectionAuthority is not set")
 		}
 		if inst.AccountMetaSlice[2] == nil {
-			return errors.New("accounts.Payer is not set")
+			return errors.New("accounts.UpdateAuthority is not set")
 		}
 		if inst.AccountMetaSlice[3] == nil {
-			return errors.New("accounts.CollectionAuthority is not set")
+			return errors.New("accounts.Payer is not set")
 		}
 		if inst.AccountMetaSlice[4] == nil {
-			return errors.New("accounts.CollectionMetadata is not set")
+			return errors.New("accounts.Metadata is not set")
 		}
 		if inst.AccountMetaSlice[5] == nil {
-			return errors.New("accounts.CollectionMint is not set")
+			return errors.New("accounts.Mint is not set")
 		}
 		if inst.AccountMetaSlice[6] == nil {
-			return errors.New("accounts.TokenProgram is not set")
+			return errors.New("accounts.SystemProgram is not set")
 		}
-		if inst.AccountMetaSlice[7] == nil {
-			return errors.New("accounts.System is not set")
-		}
-		if inst.AccountMetaSlice[8] == nil {
-			return errors.New("accounts.Rent is not set")
-		}
+
+		// [7] = Rent is optional
+
 	}
 	return nil
 }
@@ -230,16 +211,15 @@ func (inst *ApproveCollectionAuthority) EncodeToTree(parent ag_treeout.Branches)
 					instructionBranch.Child("Params[len=0]").ParentFunc(func(paramsBranch ag_treeout.Branches) {})
 
 					// Accounts of the instruction:
-					instructionBranch.Child("Accounts[len=9]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
-						accountsBranch.Child(ag_format.Meta("collectionAuthorityRecordPDA", inst.AccountMetaSlice.Get(0)))
-						accountsBranch.Child(ag_format.Meta("   collectionUpdateAuthority", inst.AccountMetaSlice.Get(1)))
-						accountsBranch.Child(ag_format.Meta("                       payer", inst.AccountMetaSlice.Get(2)))
-						accountsBranch.Child(ag_format.Meta("         collectionAuthority", inst.AccountMetaSlice.Get(3)))
-						accountsBranch.Child(ag_format.Meta("          collectionMetadata", inst.AccountMetaSlice.Get(4)))
-						accountsBranch.Child(ag_format.Meta("              collectionMint", inst.AccountMetaSlice.Get(5)))
-						accountsBranch.Child(ag_format.Meta("                tokenProgram", inst.AccountMetaSlice.Get(6)))
-						accountsBranch.Child(ag_format.Meta("                      system", inst.AccountMetaSlice.Get(7)))
-						accountsBranch.Child(ag_format.Meta("                        rent", inst.AccountMetaSlice.Get(8)))
+					instructionBranch.Child("Accounts[len=8]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
+						accountsBranch.Child(ag_format.Meta("collectionAuthorityRecord", inst.AccountMetaSlice.Get(0)))
+						accountsBranch.Child(ag_format.Meta("   newCollectionAuthority", inst.AccountMetaSlice.Get(1)))
+						accountsBranch.Child(ag_format.Meta("          updateAuthority", inst.AccountMetaSlice.Get(2)))
+						accountsBranch.Child(ag_format.Meta("                    payer", inst.AccountMetaSlice.Get(3)))
+						accountsBranch.Child(ag_format.Meta("                 metadata", inst.AccountMetaSlice.Get(4)))
+						accountsBranch.Child(ag_format.Meta("                     mint", inst.AccountMetaSlice.Get(5)))
+						accountsBranch.Child(ag_format.Meta("            systemProgram", inst.AccountMetaSlice.Get(6)))
+						accountsBranch.Child(ag_format.Meta("                     rent", inst.AccountMetaSlice.Get(7)))
 					})
 				})
 		})
@@ -255,23 +235,21 @@ func (obj *ApproveCollectionAuthority) UnmarshalWithDecoder(decoder *ag_binary.D
 // NewApproveCollectionAuthorityInstruction declares a new ApproveCollectionAuthority instruction with the provided parameters and accounts.
 func NewApproveCollectionAuthorityInstruction(
 	// Accounts:
-	collectionAuthorityRecordPDA ag_solanago.PublicKey,
-	collectionUpdateAuthority ag_solanago.PublicKey,
+	collectionAuthorityRecord ag_solanago.PublicKey,
+	newCollectionAuthority ag_solanago.PublicKey,
+	updateAuthority ag_solanago.PublicKey,
 	payer ag_solanago.PublicKey,
-	collectionAuthority ag_solanago.PublicKey,
-	collectionMetadata ag_solanago.PublicKey,
-	collectionMint ag_solanago.PublicKey,
-	tokenProgram ag_solanago.PublicKey,
-	system ag_solanago.PublicKey,
+	metadata ag_solanago.PublicKey,
+	mint ag_solanago.PublicKey,
+	systemProgram ag_solanago.PublicKey,
 	rent ag_solanago.PublicKey) *ApproveCollectionAuthority {
 	return NewApproveCollectionAuthorityInstructionBuilder().
-		SetCollectionAuthorityRecordPDAAccount(collectionAuthorityRecordPDA).
-		SetCollectionUpdateAuthorityAccount(collectionUpdateAuthority).
+		SetCollectionAuthorityRecordAccount(collectionAuthorityRecord).
+		SetNewCollectionAuthorityAccount(newCollectionAuthority).
+		SetUpdateAuthorityAccount(updateAuthority).
 		SetPayerAccount(payer).
-		SetCollectionAuthorityAccount(collectionAuthority).
-		SetCollectionMetadataAccount(collectionMetadata).
-		SetCollectionMintAccount(collectionMint).
-		SetTokenProgramAccount(tokenProgram).
-		SetSystemAccount(system).
+		SetMetadataAccount(metadata).
+		SetMintAccount(mint).
+		SetSystemProgramAccount(systemProgram).
 		SetRentAccount(rent)
 }

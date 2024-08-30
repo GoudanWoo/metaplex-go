@@ -10,16 +10,13 @@ import (
 	ag_treeout "github.com/gagliardetto/treeout"
 )
 
-// Register a Metadata as a Master Edition V2, which means Edition V2s can be minted.
-// Henceforth, no further tokens will be mintable from this primary mint. Will throw an error if more than one
-// token exists, and will throw an error if less than one token exists in this primary mint.
+// CreateMasterEdition is the `CreateMasterEdition` instruction.
 type CreateMasterEdition struct {
-	Args *CreateMasterEditionArgs
 
-	// [0] = [WRITE] unallocatedEditionV2
+	// [0] = [WRITE] edition
 	// ··········· Unallocated edition V2 account with address as pda of ['metadata', program id, mint, 'edition']
 	//
-	// [1] = [WRITE] metadataMint
+	// [1] = [WRITE] mint
 	// ··········· Metadata mint
 	//
 	// [2] = [SIGNER] updateAuthority
@@ -28,7 +25,7 @@ type CreateMasterEdition struct {
 	// [3] = [SIGNER] mintAuthority
 	// ··········· Mint authority on the metadata's mint - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY
 	//
-	// [4] = [SIGNER] payer
+	// [4] = [WRITE, SIGNER] payer
 	// ··········· payer
 	//
 	// [5] = [] metadata
@@ -37,7 +34,7 @@ type CreateMasterEdition struct {
 	// [6] = [] tokenProgram
 	// ··········· Token program
 	//
-	// [7] = [] system
+	// [7] = [] systemProgram
 	// ··········· System program
 	//
 	// [8] = [] rent
@@ -53,35 +50,29 @@ func NewCreateMasterEditionInstructionBuilder() *CreateMasterEdition {
 	return nd
 }
 
-// SetArgs sets the "args" parameter.
-func (inst *CreateMasterEdition) SetArgs(args CreateMasterEditionArgs) *CreateMasterEdition {
-	inst.Args = &args
+// SetEditionAccount sets the "edition" account.
+// Unallocated edition V2 account with address as pda of ['metadata', program id, mint, 'edition']
+func (inst *CreateMasterEdition) SetEditionAccount(edition ag_solanago.PublicKey) *CreateMasterEdition {
+	inst.AccountMetaSlice[0] = ag_solanago.Meta(edition).WRITE()
 	return inst
 }
 
-// SetUnallocatedEditionV2Account sets the "unallocatedEditionV2" account.
+// GetEditionAccount gets the "edition" account.
 // Unallocated edition V2 account with address as pda of ['metadata', program id, mint, 'edition']
-func (inst *CreateMasterEdition) SetUnallocatedEditionV2Account(unallocatedEditionV2 ag_solanago.PublicKey) *CreateMasterEdition {
-	inst.AccountMetaSlice[0] = ag_solanago.Meta(unallocatedEditionV2).WRITE()
-	return inst
-}
-
-// GetUnallocatedEditionV2Account gets the "unallocatedEditionV2" account.
-// Unallocated edition V2 account with address as pda of ['metadata', program id, mint, 'edition']
-func (inst *CreateMasterEdition) GetUnallocatedEditionV2Account() *ag_solanago.AccountMeta {
+func (inst *CreateMasterEdition) GetEditionAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(0)
 }
 
-// SetMetadataMintAccount sets the "metadataMint" account.
+// SetMintAccount sets the "mint" account.
 // Metadata mint
-func (inst *CreateMasterEdition) SetMetadataMintAccount(metadataMint ag_solanago.PublicKey) *CreateMasterEdition {
-	inst.AccountMetaSlice[1] = ag_solanago.Meta(metadataMint).WRITE()
+func (inst *CreateMasterEdition) SetMintAccount(mint ag_solanago.PublicKey) *CreateMasterEdition {
+	inst.AccountMetaSlice[1] = ag_solanago.Meta(mint).WRITE()
 	return inst
 }
 
-// GetMetadataMintAccount gets the "metadataMint" account.
+// GetMintAccount gets the "mint" account.
 // Metadata mint
-func (inst *CreateMasterEdition) GetMetadataMintAccount() *ag_solanago.AccountMeta {
+func (inst *CreateMasterEdition) GetMintAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(1)
 }
 
@@ -114,7 +105,7 @@ func (inst *CreateMasterEdition) GetMintAuthorityAccount() *ag_solanago.AccountM
 // SetPayerAccount sets the "payer" account.
 // payer
 func (inst *CreateMasterEdition) SetPayerAccount(payer ag_solanago.PublicKey) *CreateMasterEdition {
-	inst.AccountMetaSlice[4] = ag_solanago.Meta(payer).SIGNER()
+	inst.AccountMetaSlice[4] = ag_solanago.Meta(payer).WRITE().SIGNER()
 	return inst
 }
 
@@ -150,16 +141,16 @@ func (inst *CreateMasterEdition) GetTokenProgramAccount() *ag_solanago.AccountMe
 	return inst.AccountMetaSlice.Get(6)
 }
 
-// SetSystemAccount sets the "system" account.
+// SetSystemProgramAccount sets the "systemProgram" account.
 // System program
-func (inst *CreateMasterEdition) SetSystemAccount(system ag_solanago.PublicKey) *CreateMasterEdition {
-	inst.AccountMetaSlice[7] = ag_solanago.Meta(system)
+func (inst *CreateMasterEdition) SetSystemProgramAccount(systemProgram ag_solanago.PublicKey) *CreateMasterEdition {
+	inst.AccountMetaSlice[7] = ag_solanago.Meta(systemProgram)
 	return inst
 }
 
-// GetSystemAccount gets the "system" account.
+// GetSystemProgramAccount gets the "systemProgram" account.
 // System program
-func (inst *CreateMasterEdition) GetSystemAccount() *ag_solanago.AccountMeta {
+func (inst *CreateMasterEdition) GetSystemProgramAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(7)
 }
 
@@ -194,20 +185,13 @@ func (inst CreateMasterEdition) ValidateAndBuild() (*Instruction, error) {
 }
 
 func (inst *CreateMasterEdition) Validate() error {
-	// Check whether all (required) parameters are set:
-	{
-		if inst.Args == nil {
-			return errors.New("Args parameter is not set")
-		}
-	}
-
 	// Check whether all (required) accounts are set:
 	{
 		if inst.AccountMetaSlice[0] == nil {
-			return errors.New("accounts.UnallocatedEditionV2 is not set")
+			return errors.New("accounts.Edition is not set")
 		}
 		if inst.AccountMetaSlice[1] == nil {
-			return errors.New("accounts.MetadataMint is not set")
+			return errors.New("accounts.Mint is not set")
 		}
 		if inst.AccountMetaSlice[2] == nil {
 			return errors.New("accounts.UpdateAuthority is not set")
@@ -225,7 +209,7 @@ func (inst *CreateMasterEdition) Validate() error {
 			return errors.New("accounts.TokenProgram is not set")
 		}
 		if inst.AccountMetaSlice[7] == nil {
-			return errors.New("accounts.System is not set")
+			return errors.New("accounts.SystemProgram is not set")
 		}
 		if inst.AccountMetaSlice[8] == nil {
 			return errors.New("accounts.Rent is not set")
@@ -243,66 +227,51 @@ func (inst *CreateMasterEdition) EncodeToTree(parent ag_treeout.Branches) {
 				ParentFunc(func(instructionBranch ag_treeout.Branches) {
 
 					// Parameters of the instruction:
-					instructionBranch.Child("Params[len=1]").ParentFunc(func(paramsBranch ag_treeout.Branches) {
-						paramsBranch.Child(ag_format.Param("Args", *inst.Args))
-					})
+					instructionBranch.Child("Params[len=0]").ParentFunc(func(paramsBranch ag_treeout.Branches) {})
 
 					// Accounts of the instruction:
 					instructionBranch.Child("Accounts[len=9]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
-						accountsBranch.Child(ag_format.Meta("unallocatedEditionV2", inst.AccountMetaSlice.Get(0)))
-						accountsBranch.Child(ag_format.Meta("        metadataMint", inst.AccountMetaSlice.Get(1)))
-						accountsBranch.Child(ag_format.Meta("     updateAuthority", inst.AccountMetaSlice.Get(2)))
-						accountsBranch.Child(ag_format.Meta("       mintAuthority", inst.AccountMetaSlice.Get(3)))
-						accountsBranch.Child(ag_format.Meta("               payer", inst.AccountMetaSlice.Get(4)))
-						accountsBranch.Child(ag_format.Meta("            metadata", inst.AccountMetaSlice.Get(5)))
-						accountsBranch.Child(ag_format.Meta("        tokenProgram", inst.AccountMetaSlice.Get(6)))
-						accountsBranch.Child(ag_format.Meta("              system", inst.AccountMetaSlice.Get(7)))
-						accountsBranch.Child(ag_format.Meta("                rent", inst.AccountMetaSlice.Get(8)))
+						accountsBranch.Child(ag_format.Meta("        edition", inst.AccountMetaSlice.Get(0)))
+						accountsBranch.Child(ag_format.Meta("           mint", inst.AccountMetaSlice.Get(1)))
+						accountsBranch.Child(ag_format.Meta("updateAuthority", inst.AccountMetaSlice.Get(2)))
+						accountsBranch.Child(ag_format.Meta("  mintAuthority", inst.AccountMetaSlice.Get(3)))
+						accountsBranch.Child(ag_format.Meta("          payer", inst.AccountMetaSlice.Get(4)))
+						accountsBranch.Child(ag_format.Meta("       metadata", inst.AccountMetaSlice.Get(5)))
+						accountsBranch.Child(ag_format.Meta("   tokenProgram", inst.AccountMetaSlice.Get(6)))
+						accountsBranch.Child(ag_format.Meta("  systemProgram", inst.AccountMetaSlice.Get(7)))
+						accountsBranch.Child(ag_format.Meta("           rent", inst.AccountMetaSlice.Get(8)))
 					})
 				})
 		})
 }
 
 func (obj CreateMasterEdition) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
-	// Serialize `Args` param:
-	err = encoder.Encode(obj.Args)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 func (obj *CreateMasterEdition) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
-	// Deserialize `Args`:
-	err = decoder.Decode(&obj.Args)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
 // NewCreateMasterEditionInstruction declares a new CreateMasterEdition instruction with the provided parameters and accounts.
 func NewCreateMasterEditionInstruction(
-	// Parameters:
-	args CreateMasterEditionArgs,
 	// Accounts:
-	unallocatedEditionV2 ag_solanago.PublicKey,
-	metadataMint ag_solanago.PublicKey,
+	edition ag_solanago.PublicKey,
+	mint ag_solanago.PublicKey,
 	updateAuthority ag_solanago.PublicKey,
 	mintAuthority ag_solanago.PublicKey,
 	payer ag_solanago.PublicKey,
 	metadata ag_solanago.PublicKey,
 	tokenProgram ag_solanago.PublicKey,
-	system ag_solanago.PublicKey,
+	systemProgram ag_solanago.PublicKey,
 	rent ag_solanago.PublicKey) *CreateMasterEdition {
 	return NewCreateMasterEditionInstructionBuilder().
-		SetArgs(args).
-		SetUnallocatedEditionV2Account(unallocatedEditionV2).
-		SetMetadataMintAccount(metadataMint).
+		SetEditionAccount(edition).
+		SetMintAccount(mint).
 		SetUpdateAuthorityAccount(updateAuthority).
 		SetMintAuthorityAccount(mintAuthority).
 		SetPayerAccount(payer).
 		SetMetadataAccount(metadata).
 		SetTokenProgramAccount(tokenProgram).
-		SetSystemAccount(system).
+		SetSystemProgramAccount(systemProgram).
 		SetRentAccount(rent)
 }

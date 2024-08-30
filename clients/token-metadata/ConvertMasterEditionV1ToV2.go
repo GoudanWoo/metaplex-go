@@ -10,15 +10,13 @@ import (
 	ag_treeout "github.com/gagliardetto/treeout"
 )
 
-// Converts the Master Edition V1 to a Master Edition V2, draining lamports from the two printing mints
-// to the owner of the token account holding the master edition token. Permissionless.
-// Can only be called if there are currenly no printing tokens or one time authorization tokens in circulation.
+// ConvertMasterEditionV1ToV2 is the `ConvertMasterEditionV1ToV2` instruction.
 type ConvertMasterEditionV1ToV2 struct {
 
-	// [0] = [WRITE] masterRecordEditionV1
+	// [0] = [WRITE] masterEdition
 	// ··········· Master Record Edition V1 (pda of ['metadata', program id, master metadata mint id, 'edition'])
 	//
-	// [1] = [WRITE] oneTimeAuthorizationMint
+	// [1] = [WRITE] oneTimeAuth
 	// ··········· One time authorization mint
 	//
 	// [2] = [WRITE] printingMint
@@ -34,29 +32,29 @@ func NewConvertMasterEditionV1ToV2InstructionBuilder() *ConvertMasterEditionV1To
 	return nd
 }
 
-// SetMasterRecordEditionV1Account sets the "masterRecordEditionV1" account.
+// SetMasterEditionAccount sets the "masterEdition" account.
 // Master Record Edition V1 (pda of ['metadata', program id, master metadata mint id, 'edition'])
-func (inst *ConvertMasterEditionV1ToV2) SetMasterRecordEditionV1Account(masterRecordEditionV1 ag_solanago.PublicKey) *ConvertMasterEditionV1ToV2 {
-	inst.AccountMetaSlice[0] = ag_solanago.Meta(masterRecordEditionV1).WRITE()
+func (inst *ConvertMasterEditionV1ToV2) SetMasterEditionAccount(masterEdition ag_solanago.PublicKey) *ConvertMasterEditionV1ToV2 {
+	inst.AccountMetaSlice[0] = ag_solanago.Meta(masterEdition).WRITE()
 	return inst
 }
 
-// GetMasterRecordEditionV1Account gets the "masterRecordEditionV1" account.
+// GetMasterEditionAccount gets the "masterEdition" account.
 // Master Record Edition V1 (pda of ['metadata', program id, master metadata mint id, 'edition'])
-func (inst *ConvertMasterEditionV1ToV2) GetMasterRecordEditionV1Account() *ag_solanago.AccountMeta {
+func (inst *ConvertMasterEditionV1ToV2) GetMasterEditionAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(0)
 }
 
-// SetOneTimeAuthorizationMintAccount sets the "oneTimeAuthorizationMint" account.
+// SetOneTimeAuthAccount sets the "oneTimeAuth" account.
 // One time authorization mint
-func (inst *ConvertMasterEditionV1ToV2) SetOneTimeAuthorizationMintAccount(oneTimeAuthorizationMint ag_solanago.PublicKey) *ConvertMasterEditionV1ToV2 {
-	inst.AccountMetaSlice[1] = ag_solanago.Meta(oneTimeAuthorizationMint).WRITE()
+func (inst *ConvertMasterEditionV1ToV2) SetOneTimeAuthAccount(oneTimeAuth ag_solanago.PublicKey) *ConvertMasterEditionV1ToV2 {
+	inst.AccountMetaSlice[1] = ag_solanago.Meta(oneTimeAuth).WRITE()
 	return inst
 }
 
-// GetOneTimeAuthorizationMintAccount gets the "oneTimeAuthorizationMint" account.
+// GetOneTimeAuthAccount gets the "oneTimeAuth" account.
 // One time authorization mint
-func (inst *ConvertMasterEditionV1ToV2) GetOneTimeAuthorizationMintAccount() *ag_solanago.AccountMeta {
+func (inst *ConvertMasterEditionV1ToV2) GetOneTimeAuthAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(1)
 }
 
@@ -94,10 +92,10 @@ func (inst *ConvertMasterEditionV1ToV2) Validate() error {
 	// Check whether all (required) accounts are set:
 	{
 		if inst.AccountMetaSlice[0] == nil {
-			return errors.New("accounts.MasterRecordEditionV1 is not set")
+			return errors.New("accounts.MasterEdition is not set")
 		}
 		if inst.AccountMetaSlice[1] == nil {
-			return errors.New("accounts.OneTimeAuthorizationMint is not set")
+			return errors.New("accounts.OneTimeAuth is not set")
 		}
 		if inst.AccountMetaSlice[2] == nil {
 			return errors.New("accounts.PrintingMint is not set")
@@ -119,9 +117,9 @@ func (inst *ConvertMasterEditionV1ToV2) EncodeToTree(parent ag_treeout.Branches)
 
 					// Accounts of the instruction:
 					instructionBranch.Child("Accounts[len=3]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
-						accountsBranch.Child(ag_format.Meta("   masterRecordEditionV1", inst.AccountMetaSlice.Get(0)))
-						accountsBranch.Child(ag_format.Meta("oneTimeAuthorizationMint", inst.AccountMetaSlice.Get(1)))
-						accountsBranch.Child(ag_format.Meta("            printingMint", inst.AccountMetaSlice.Get(2)))
+						accountsBranch.Child(ag_format.Meta("masterEdition", inst.AccountMetaSlice.Get(0)))
+						accountsBranch.Child(ag_format.Meta("  oneTimeAuth", inst.AccountMetaSlice.Get(1)))
+						accountsBranch.Child(ag_format.Meta(" printingMint", inst.AccountMetaSlice.Get(2)))
 					})
 				})
 		})
@@ -137,11 +135,11 @@ func (obj *ConvertMasterEditionV1ToV2) UnmarshalWithDecoder(decoder *ag_binary.D
 // NewConvertMasterEditionV1ToV2Instruction declares a new ConvertMasterEditionV1ToV2 instruction with the provided parameters and accounts.
 func NewConvertMasterEditionV1ToV2Instruction(
 	// Accounts:
-	masterRecordEditionV1 ag_solanago.PublicKey,
-	oneTimeAuthorizationMint ag_solanago.PublicKey,
+	masterEdition ag_solanago.PublicKey,
+	oneTimeAuth ag_solanago.PublicKey,
 	printingMint ag_solanago.PublicKey) *ConvertMasterEditionV1ToV2 {
 	return NewConvertMasterEditionV1ToV2InstructionBuilder().
-		SetMasterRecordEditionV1Account(masterRecordEditionV1).
-		SetOneTimeAuthorizationMintAccount(oneTimeAuthorizationMint).
+		SetMasterEditionAccount(masterEdition).
+		SetOneTimeAuthAccount(oneTimeAuth).
 		SetPrintingMintAccount(printingMint)
 }

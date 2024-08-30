@@ -31,108 +31,117 @@ func init() {
 }
 
 const (
-	// Create Metadata object.
 	Instruction_CreateMetadataAccount uint8 = iota
 
-	// Update a Metadata
 	Instruction_UpdateMetadataAccount
 
-	// Register a Metadata as a Master Edition V1, which means Editions can be minted.
-	// Henceforth, no further tokens will be mintable from this primary mint. Will throw an error if more than one
-	// token exists, and will throw an error if less than one token exists in this primary mint.
 	Instruction_DeprecatedCreateMasterEdition
 
-	// Given an authority token minted by the Printing mint of a master edition, and a brand new non-metadata-ed mint with one token
-	// make a new Metadata + Edition that is a child of the master edition denoted by this authority token.
 	Instruction_DeprecatedMintNewEditionFromMasterEditionViaPrintingToken
 
-	// Allows updating the primary sale boolean on Metadata solely through owning an account
-	// containing a token from the metadata's mint and being a signer on this transaction.
-	// A sort of limited authority for limited update capability that is required for things like
-	// Metaplex to work without needing full authority passing.
 	Instruction_UpdatePrimarySaleHappenedViaToken
 
-	// Reserve up to 200 editions in sequence for up to 200 addresses in an existing reservation PDA, which can then be used later by
-	// redeemers who have printing tokens as a reservation to get a specific edition number
-	// as opposed to whatever one is currently listed on the master edition. Used by Auction Manager
-	// to guarantee printing order on bid redemption. AM will call whenever the first person redeems a
-	// printing bid to reserve the whole block
-	// of winners in order and then each winner when they get their token submits their mint and account
-	// with the pda that was created by that first bidder - the token metadata can then cross reference
-	// these people with the list and see that bidder A gets edition #2, so on and so forth.
-	//
-	// NOTE: If you have more than 20 addresses in a reservation list, this may be called multiple times to build up the list,
-	// otherwise, it simply wont fit in one transaction. Only provide a total_reservation argument on the first call, which will
-	// allocate the edition space, and in follow up calls this will specifically be unnecessary (and indeed will error.)
 	Instruction_DeprecatedSetReservationList
 
-	// Create an empty reservation list for a resource who can come back later as a signer and fill the reservation list
-	// with reservations to ensure that people who come to get editions get the number they expect. See SetReservationList for more.
 	Instruction_DeprecatedCreateReservationList
 
-	// Sign a piece of metadata that has you as an unverified creator so that it is now verified.
 	Instruction_SignMetadata
 
-	// Using a one time authorization token from a master edition v1, print any number of printing tokens from the printing_mint
-	// one time, burning the one time authorization token.
 	Instruction_DeprecatedMintPrintingTokensViaToken
 
-	// Using your update authority, mint printing tokens for your master edition.
 	Instruction_DeprecatedMintPrintingTokens
 
-	// Register a Metadata as a Master Edition V2, which means Edition V2s can be minted.
-	// Henceforth, no further tokens will be mintable from this primary mint. Will throw an error if more than one
-	// token exists, and will throw an error if less than one token exists in this primary mint.
 	Instruction_CreateMasterEdition
 
-	// Given a token account containing the master edition token to prove authority, and a brand new non-metadata-ed mint with one token
-	// make a new Metadata + Edition that is a child of the master edition denoted by this authority token.
 	Instruction_MintNewEditionFromMasterEditionViaToken
 
-	// Converts the Master Edition V1 to a Master Edition V2, draining lamports from the two printing mints
-	// to the owner of the token account holding the master edition token. Permissionless.
-	// Can only be called if there are currenly no printing tokens or one time authorization tokens in circulation.
 	Instruction_ConvertMasterEditionV1ToV2
 
-	// Proxy Call to Mint Edition using a Store Token Account as a Vault Authority.
 	Instruction_MintNewEditionFromMasterEditionViaVaultProxy
 
-	// Puff a Metadata - make all of it's variable length fields (name/uri/symbol) a fixed length using a null character
-	// so that it can be found using offset searches by the RPC to make client lookups cheaper.
 	Instruction_PuffMetadata
 
-	// Update a Metadata with is_mutable as a parameter
 	Instruction_UpdateMetadataAccountV2
 
-	// Create Metadata object.
 	Instruction_CreateMetadataAccountV2
 
-	// Register a Metadata as a Master Edition V2, which means Edition V2s can be minted.
-	// Henceforth, no further tokens will be mintable from this primary mint. Will throw an error if more than one
-	// token exists, and will throw an error if less than one token exists in this primary mint.
 	Instruction_CreateMasterEditionV3
 
-	// If a MetadataAccount Has a Collection allow the UpdateAuthority of the Collection to Verify the NFT Belongs in the Collection
 	Instruction_VerifyCollection
 
-	// Utilize or Use an NFT , burns the NFT and returns the lamports to the update authority if the use method is burn and its out of uses.
-	// Use Authority can be the Holder of the NFT, or a Delegated Use Authority.
 	Instruction_Utilize
 
-	// Approve another account to call `utilize` on this NFT
 	Instruction_ApproveUseAuthority
 
-	// Revoke account to call `utilize` on this NFT
 	Instruction_RevokeUseAuthority
 
-	// If a MetadataAccount Has a Collection allow an Authority of the Collection to unverify an NFT in a Collection
 	Instruction_UnverifyCollection
 
-	// Approve another account to verify nfts beloging to a collection, [verify_collection] on the collection NFT
 	Instruction_ApproveCollectionAuthority
 
-	// Revoke account to call [verify_collection] on this NFT
 	Instruction_RevokeCollectionAuthority
+
+	Instruction_SetAndVerifyCollection
+
+	Instruction_FreezeDelegatedAccount
+
+	Instruction_ThawDelegatedAccount
+
+	Instruction_RemoveCreatorVerification
+
+	Instruction_BurnNft
+
+	Instruction_VerifySizedCollectionItem
+
+	Instruction_UnverifySizedCollectionItem
+
+	Instruction_SetAndVerifySizedCollectionItem
+
+	Instruction_CreateMetadataAccountV3
+
+	Instruction_SetCollectionSize
+
+	Instruction_SetTokenStandard
+
+	Instruction_BubblegumSetCollectionSize
+
+	Instruction_BurnEditionNft
+
+	Instruction_CreateEscrowAccount
+
+	Instruction_CloseEscrowAccount
+
+	Instruction_TransferOutOfEscrow
+
+	Instruction_Burn
+
+	Instruction_Create
+
+	Instruction_Mint
+
+	Instruction_Delegate
+
+	Instruction_Revoke
+
+	Instruction_Lock
+
+	Instruction_Unlock
+
+	Instruction_Migrate
+
+	Instruction_Transfer
+
+	Instruction_Update
+
+	Instruction_Use
+
+	Instruction_Verify
+
+	Instruction_Unverify
+
+	Instruction_Collect
+
+	Instruction_Print
 )
 
 // InstructionIDToName returns the name of the instruction given its ID.
@@ -188,6 +197,68 @@ func InstructionIDToName(id uint8) string {
 		return "ApproveCollectionAuthority"
 	case Instruction_RevokeCollectionAuthority:
 		return "RevokeCollectionAuthority"
+	case Instruction_SetAndVerifyCollection:
+		return "SetAndVerifyCollection"
+	case Instruction_FreezeDelegatedAccount:
+		return "FreezeDelegatedAccount"
+	case Instruction_ThawDelegatedAccount:
+		return "ThawDelegatedAccount"
+	case Instruction_RemoveCreatorVerification:
+		return "RemoveCreatorVerification"
+	case Instruction_BurnNft:
+		return "BurnNft"
+	case Instruction_VerifySizedCollectionItem:
+		return "VerifySizedCollectionItem"
+	case Instruction_UnverifySizedCollectionItem:
+		return "UnverifySizedCollectionItem"
+	case Instruction_SetAndVerifySizedCollectionItem:
+		return "SetAndVerifySizedCollectionItem"
+	case Instruction_CreateMetadataAccountV3:
+		return "CreateMetadataAccountV3"
+	case Instruction_SetCollectionSize:
+		return "SetCollectionSize"
+	case Instruction_SetTokenStandard:
+		return "SetTokenStandard"
+	case Instruction_BubblegumSetCollectionSize:
+		return "BubblegumSetCollectionSize"
+	case Instruction_BurnEditionNft:
+		return "BurnEditionNft"
+	case Instruction_CreateEscrowAccount:
+		return "CreateEscrowAccount"
+	case Instruction_CloseEscrowAccount:
+		return "CloseEscrowAccount"
+	case Instruction_TransferOutOfEscrow:
+		return "TransferOutOfEscrow"
+	case Instruction_Burn:
+		return "Burn"
+	case Instruction_Create:
+		return "Create"
+	case Instruction_Mint:
+		return "Mint"
+	case Instruction_Delegate:
+		return "Delegate"
+	case Instruction_Revoke:
+		return "Revoke"
+	case Instruction_Lock:
+		return "Lock"
+	case Instruction_Unlock:
+		return "Unlock"
+	case Instruction_Migrate:
+		return "Migrate"
+	case Instruction_Transfer:
+		return "Transfer"
+	case Instruction_Update:
+		return "Update"
+	case Instruction_Use:
+		return "Use"
+	case Instruction_Verify:
+		return "Verify"
+	case Instruction_Unverify:
+		return "Unverify"
+	case Instruction_Collect:
+		return "Collect"
+	case Instruction_Print:
+		return "Print"
 	default:
 		return ""
 	}
@@ -282,6 +353,99 @@ var InstructionImplDef = ag_binary.NewVariantDefinition(
 		},
 		{
 			"RevokeCollectionAuthority", (*RevokeCollectionAuthority)(nil),
+		},
+		{
+			"SetAndVerifyCollection", (*SetAndVerifyCollection)(nil),
+		},
+		{
+			"FreezeDelegatedAccount", (*FreezeDelegatedAccount)(nil),
+		},
+		{
+			"ThawDelegatedAccount", (*ThawDelegatedAccount)(nil),
+		},
+		{
+			"RemoveCreatorVerification", (*RemoveCreatorVerification)(nil),
+		},
+		{
+			"BurnNft", (*BurnNft)(nil),
+		},
+		{
+			"VerifySizedCollectionItem", (*VerifySizedCollectionItem)(nil),
+		},
+		{
+			"UnverifySizedCollectionItem", (*UnverifySizedCollectionItem)(nil),
+		},
+		{
+			"SetAndVerifySizedCollectionItem", (*SetAndVerifySizedCollectionItem)(nil),
+		},
+		{
+			"CreateMetadataAccountV3", (*CreateMetadataAccountV3)(nil),
+		},
+		{
+			"SetCollectionSize", (*SetCollectionSize)(nil),
+		},
+		{
+			"SetTokenStandard", (*SetTokenStandard)(nil),
+		},
+		{
+			"BubblegumSetCollectionSize", (*BubblegumSetCollectionSize)(nil),
+		},
+		{
+			"BurnEditionNft", (*BurnEditionNft)(nil),
+		},
+		{
+			"CreateEscrowAccount", (*CreateEscrowAccount)(nil),
+		},
+		{
+			"CloseEscrowAccount", (*CloseEscrowAccount)(nil),
+		},
+		{
+			"TransferOutOfEscrow", (*TransferOutOfEscrow)(nil),
+		},
+		{
+			"Burn", (*Burn)(nil),
+		},
+		{
+			"Create", (*Create)(nil),
+		},
+		{
+			"Mint", (*Mint)(nil),
+		},
+		{
+			"Delegate", (*Delegate)(nil),
+		},
+		{
+			"Revoke", (*Revoke)(nil),
+		},
+		{
+			"Lock", (*Lock)(nil),
+		},
+		{
+			"Unlock", (*Unlock)(nil),
+		},
+		{
+			"Migrate", (*Migrate)(nil),
+		},
+		{
+			"Transfer", (*Transfer)(nil),
+		},
+		{
+			"Update", (*Update)(nil),
+		},
+		{
+			"Use", (*Use)(nil),
+		},
+		{
+			"Verify", (*Verify)(nil),
+		},
+		{
+			"Unverify", (*Unverify)(nil),
+		},
+		{
+			"Collect", (*Collect)(nil),
+		},
+		{
+			"Print", (*Print)(nil),
 		},
 	},
 )

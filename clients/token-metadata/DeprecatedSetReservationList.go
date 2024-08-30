@@ -10,25 +10,13 @@ import (
 	ag_treeout "github.com/gagliardetto/treeout"
 )
 
-// Reserve up to 200 editions in sequence for up to 200 addresses in an existing reservation PDA, which can then be used later by
-// redeemers who have printing tokens as a reservation to get a specific edition number
-// as opposed to whatever one is currently listed on the master edition. Used by Auction Manager
-// to guarantee printing order on bid redemption. AM will call whenever the first person redeems a
-// printing bid to reserve the whole block
-// of winners in order and then each winner when they get their token submits their mint and account
-// with the pda that was created by that first bidder - the token metadata can then cross reference
-// these people with the list and see that bidder A gets edition #2, so on and so forth.
-//
-// NOTE: If you have more than 20 addresses in a reservation list, this may be called multiple times to build up the list,
-// otherwise, it simply wont fit in one transaction. Only provide a total_reservation argument on the first call, which will
-// allocate the edition space, and in follow up calls this will specifically be unnecessary (and indeed will error.)
+// DeprecatedSetReservationList is the `DeprecatedSetReservationList` instruction.
 type DeprecatedSetReservationList struct {
-	Args *SetReservationListArgs
 
-	// [0] = [WRITE] masterEditionV1
+	// [0] = [WRITE] masterEdition
 	// ··········· Master Edition V1 key (pda of ['metadata', program id, mint id, 'edition'])
 	//
-	// [1] = [WRITE] pdaForReservationlist
+	// [1] = [WRITE] reservationList
 	// ··········· PDA for ReservationList of ['metadata', program id, master edition key, 'reservation', resource-key]
 	//
 	// [2] = [SIGNER] resource
@@ -44,35 +32,29 @@ func NewDeprecatedSetReservationListInstructionBuilder() *DeprecatedSetReservati
 	return nd
 }
 
-// SetArgs sets the "args" parameter.
-func (inst *DeprecatedSetReservationList) SetArgs(args SetReservationListArgs) *DeprecatedSetReservationList {
-	inst.Args = &args
+// SetMasterEditionAccount sets the "masterEdition" account.
+// Master Edition V1 key (pda of ['metadata', program id, mint id, 'edition'])
+func (inst *DeprecatedSetReservationList) SetMasterEditionAccount(masterEdition ag_solanago.PublicKey) *DeprecatedSetReservationList {
+	inst.AccountMetaSlice[0] = ag_solanago.Meta(masterEdition).WRITE()
 	return inst
 }
 
-// SetMasterEditionV1Account sets the "masterEditionV1" account.
+// GetMasterEditionAccount gets the "masterEdition" account.
 // Master Edition V1 key (pda of ['metadata', program id, mint id, 'edition'])
-func (inst *DeprecatedSetReservationList) SetMasterEditionV1Account(masterEditionV1 ag_solanago.PublicKey) *DeprecatedSetReservationList {
-	inst.AccountMetaSlice[0] = ag_solanago.Meta(masterEditionV1).WRITE()
-	return inst
-}
-
-// GetMasterEditionV1Account gets the "masterEditionV1" account.
-// Master Edition V1 key (pda of ['metadata', program id, mint id, 'edition'])
-func (inst *DeprecatedSetReservationList) GetMasterEditionV1Account() *ag_solanago.AccountMeta {
+func (inst *DeprecatedSetReservationList) GetMasterEditionAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(0)
 }
 
-// SetPdaForReservationlistAccount sets the "pdaForReservationlist" account.
+// SetReservationListAccount sets the "reservationList" account.
 // PDA for ReservationList of ['metadata', program id, master edition key, 'reservation', resource-key]
-func (inst *DeprecatedSetReservationList) SetPdaForReservationlistAccount(pdaForReservationlist ag_solanago.PublicKey) *DeprecatedSetReservationList {
-	inst.AccountMetaSlice[1] = ag_solanago.Meta(pdaForReservationlist).WRITE()
+func (inst *DeprecatedSetReservationList) SetReservationListAccount(reservationList ag_solanago.PublicKey) *DeprecatedSetReservationList {
+	inst.AccountMetaSlice[1] = ag_solanago.Meta(reservationList).WRITE()
 	return inst
 }
 
-// GetPdaForReservationlistAccount gets the "pdaForReservationlist" account.
+// GetReservationListAccount gets the "reservationList" account.
 // PDA for ReservationList of ['metadata', program id, master edition key, 'reservation', resource-key]
-func (inst *DeprecatedSetReservationList) GetPdaForReservationlistAccount() *ag_solanago.AccountMeta {
+func (inst *DeprecatedSetReservationList) GetReservationListAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(1)
 }
 
@@ -107,20 +89,13 @@ func (inst DeprecatedSetReservationList) ValidateAndBuild() (*Instruction, error
 }
 
 func (inst *DeprecatedSetReservationList) Validate() error {
-	// Check whether all (required) parameters are set:
-	{
-		if inst.Args == nil {
-			return errors.New("Args parameter is not set")
-		}
-	}
-
 	// Check whether all (required) accounts are set:
 	{
 		if inst.AccountMetaSlice[0] == nil {
-			return errors.New("accounts.MasterEditionV1 is not set")
+			return errors.New("accounts.MasterEdition is not set")
 		}
 		if inst.AccountMetaSlice[1] == nil {
-			return errors.New("accounts.PdaForReservationlist is not set")
+			return errors.New("accounts.ReservationList is not set")
 		}
 		if inst.AccountMetaSlice[2] == nil {
 			return errors.New("accounts.Resource is not set")
@@ -138,48 +113,33 @@ func (inst *DeprecatedSetReservationList) EncodeToTree(parent ag_treeout.Branche
 				ParentFunc(func(instructionBranch ag_treeout.Branches) {
 
 					// Parameters of the instruction:
-					instructionBranch.Child("Params[len=1]").ParentFunc(func(paramsBranch ag_treeout.Branches) {
-						paramsBranch.Child(ag_format.Param("Args", *inst.Args))
-					})
+					instructionBranch.Child("Params[len=0]").ParentFunc(func(paramsBranch ag_treeout.Branches) {})
 
 					// Accounts of the instruction:
 					instructionBranch.Child("Accounts[len=3]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
-						accountsBranch.Child(ag_format.Meta("      masterEditionV1", inst.AccountMetaSlice.Get(0)))
-						accountsBranch.Child(ag_format.Meta("pdaForReservationlist", inst.AccountMetaSlice.Get(1)))
-						accountsBranch.Child(ag_format.Meta("             resource", inst.AccountMetaSlice.Get(2)))
+						accountsBranch.Child(ag_format.Meta("  masterEdition", inst.AccountMetaSlice.Get(0)))
+						accountsBranch.Child(ag_format.Meta("reservationList", inst.AccountMetaSlice.Get(1)))
+						accountsBranch.Child(ag_format.Meta("       resource", inst.AccountMetaSlice.Get(2)))
 					})
 				})
 		})
 }
 
 func (obj DeprecatedSetReservationList) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
-	// Serialize `Args` param:
-	err = encoder.Encode(obj.Args)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 func (obj *DeprecatedSetReservationList) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
-	// Deserialize `Args`:
-	err = decoder.Decode(&obj.Args)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
 // NewDeprecatedSetReservationListInstruction declares a new DeprecatedSetReservationList instruction with the provided parameters and accounts.
 func NewDeprecatedSetReservationListInstruction(
-	// Parameters:
-	args SetReservationListArgs,
 	// Accounts:
-	masterEditionV1 ag_solanago.PublicKey,
-	pdaForReservationlist ag_solanago.PublicKey,
+	masterEdition ag_solanago.PublicKey,
+	reservationList ag_solanago.PublicKey,
 	resource ag_solanago.PublicKey) *DeprecatedSetReservationList {
 	return NewDeprecatedSetReservationListInstructionBuilder().
-		SetArgs(args).
-		SetMasterEditionV1Account(masterEditionV1).
-		SetPdaForReservationlistAccount(pdaForReservationlist).
+		SetMasterEditionAccount(masterEdition).
+		SetReservationListAccount(reservationList).
 		SetResourceAccount(resource)
 }

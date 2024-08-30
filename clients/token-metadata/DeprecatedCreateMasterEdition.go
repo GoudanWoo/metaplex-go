@@ -10,33 +10,28 @@ import (
 	ag_treeout "github.com/gagliardetto/treeout"
 )
 
-// Register a Metadata as a Master Edition V1, which means Editions can be minted.
-// Henceforth, no further tokens will be mintable from this primary mint. Will throw an error if more than one
-// token exists, and will throw an error if less than one token exists in this primary mint.
+// DeprecatedCreateMasterEdition is the `DeprecatedCreateMasterEdition` instruction.
 type DeprecatedCreateMasterEdition struct {
-	Args *CreateMasterEditionArgs
 
-	// [0] = [WRITE] unallocatedEditionV1
+	// [0] = [WRITE] edition
 	// ··········· Unallocated edition V1 account with address as pda of ['metadata', program id, mint, 'edition']
 	//
-	// [1] = [WRITE] metadataMint
+	// [1] = [WRITE] mint
 	// ··········· Metadata mint
 	//
 	// [2] = [WRITE] printingMint
-	// ··········· Printing mint - A mint you control that can mint tokens that can be exchanged for limited editions of your
-	// ··········· master edition via the MintNewEditionFromMasterEditionViaToken endpoint
+	// ··········· Printing mint - A mint you control that can mint tokens that can be exchanged for limited editions of your master edition via the MintNewEditionFromMasterEditionViaToken endpoint
 	//
-	// [3] = [WRITE] oneTimeAuthPrintingMint
-	// ··········· One time authorization printing mint - A mint you control that prints tokens that gives the bearer permission to mint any
-	// ··········· number of tokens from the printing mint one time via an endpoint with the token-metadata program for your metadata. Also burns the token.
+	// [3] = [WRITE] oneTimePrintingAuthorizationMint
+	// ··········· One time authorization printing mint - A mint you control that prints tokens that gives the bearer permission to mint any number of tokens from the printing mint one time via an endpoint with the token-metadata program for your metadata. Also burns the token.
 	//
-	// [4] = [SIGNER] currentUpdateAuthority
+	// [4] = [SIGNER] updateAuthority
 	// ··········· Current Update authority key
 	//
 	// [5] = [SIGNER] printingMintAuthority
 	// ··········· Printing mint authority - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY.
 	//
-	// [6] = [SIGNER] mintAuthorityOnMetadataMint
+	// [6] = [SIGNER] mintAuthority
 	// ··········· Mint authority on the metadata's mint - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY
 	//
 	// [7] = [] metadata
@@ -48,13 +43,13 @@ type DeprecatedCreateMasterEdition struct {
 	// [9] = [] tokenProgram
 	// ··········· Token program
 	//
-	// [10] = [] system
+	// [10] = [] systemProgram
 	// ··········· System program
 	//
 	// [11] = [] rent
 	// ··········· Rent info
 	//
-	// [12] = [SIGNER] oneTimeAuthorizationPrintingMintAuthority
+	// [12] = [SIGNER] oneTimePrintingAuthorizationMintAuthority
 	// ··········· One time authorization printing mint authority - must be provided if using max supply. THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY.
 	ag_solanago.AccountMetaSlice `bin:"-"`
 }
@@ -67,78 +62,68 @@ func NewDeprecatedCreateMasterEditionInstructionBuilder() *DeprecatedCreateMaste
 	return nd
 }
 
-// SetArgs sets the "args" parameter.
-func (inst *DeprecatedCreateMasterEdition) SetArgs(args CreateMasterEditionArgs) *DeprecatedCreateMasterEdition {
-	inst.Args = &args
+// SetEditionAccount sets the "edition" account.
+// Unallocated edition V1 account with address as pda of ['metadata', program id, mint, 'edition']
+func (inst *DeprecatedCreateMasterEdition) SetEditionAccount(edition ag_solanago.PublicKey) *DeprecatedCreateMasterEdition {
+	inst.AccountMetaSlice[0] = ag_solanago.Meta(edition).WRITE()
 	return inst
 }
 
-// SetUnallocatedEditionV1Account sets the "unallocatedEditionV1" account.
+// GetEditionAccount gets the "edition" account.
 // Unallocated edition V1 account with address as pda of ['metadata', program id, mint, 'edition']
-func (inst *DeprecatedCreateMasterEdition) SetUnallocatedEditionV1Account(unallocatedEditionV1 ag_solanago.PublicKey) *DeprecatedCreateMasterEdition {
-	inst.AccountMetaSlice[0] = ag_solanago.Meta(unallocatedEditionV1).WRITE()
-	return inst
-}
-
-// GetUnallocatedEditionV1Account gets the "unallocatedEditionV1" account.
-// Unallocated edition V1 account with address as pda of ['metadata', program id, mint, 'edition']
-func (inst *DeprecatedCreateMasterEdition) GetUnallocatedEditionV1Account() *ag_solanago.AccountMeta {
+func (inst *DeprecatedCreateMasterEdition) GetEditionAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(0)
 }
 
-// SetMetadataMintAccount sets the "metadataMint" account.
+// SetMintAccount sets the "mint" account.
 // Metadata mint
-func (inst *DeprecatedCreateMasterEdition) SetMetadataMintAccount(metadataMint ag_solanago.PublicKey) *DeprecatedCreateMasterEdition {
-	inst.AccountMetaSlice[1] = ag_solanago.Meta(metadataMint).WRITE()
+func (inst *DeprecatedCreateMasterEdition) SetMintAccount(mint ag_solanago.PublicKey) *DeprecatedCreateMasterEdition {
+	inst.AccountMetaSlice[1] = ag_solanago.Meta(mint).WRITE()
 	return inst
 }
 
-// GetMetadataMintAccount gets the "metadataMint" account.
+// GetMintAccount gets the "mint" account.
 // Metadata mint
-func (inst *DeprecatedCreateMasterEdition) GetMetadataMintAccount() *ag_solanago.AccountMeta {
+func (inst *DeprecatedCreateMasterEdition) GetMintAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(1)
 }
 
 // SetPrintingMintAccount sets the "printingMint" account.
-// Printing mint - A mint you control that can mint tokens that can be exchanged for limited editions of your
-// master edition via the MintNewEditionFromMasterEditionViaToken endpoint
+// Printing mint - A mint you control that can mint tokens that can be exchanged for limited editions of your master edition via the MintNewEditionFromMasterEditionViaToken endpoint
 func (inst *DeprecatedCreateMasterEdition) SetPrintingMintAccount(printingMint ag_solanago.PublicKey) *DeprecatedCreateMasterEdition {
 	inst.AccountMetaSlice[2] = ag_solanago.Meta(printingMint).WRITE()
 	return inst
 }
 
 // GetPrintingMintAccount gets the "printingMint" account.
-// Printing mint - A mint you control that can mint tokens that can be exchanged for limited editions of your
-// master edition via the MintNewEditionFromMasterEditionViaToken endpoint
+// Printing mint - A mint you control that can mint tokens that can be exchanged for limited editions of your master edition via the MintNewEditionFromMasterEditionViaToken endpoint
 func (inst *DeprecatedCreateMasterEdition) GetPrintingMintAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(2)
 }
 
-// SetOneTimeAuthPrintingMintAccount sets the "oneTimeAuthPrintingMint" account.
-// One time authorization printing mint - A mint you control that prints tokens that gives the bearer permission to mint any
-// number of tokens from the printing mint one time via an endpoint with the token-metadata program for your metadata. Also burns the token.
-func (inst *DeprecatedCreateMasterEdition) SetOneTimeAuthPrintingMintAccount(oneTimeAuthPrintingMint ag_solanago.PublicKey) *DeprecatedCreateMasterEdition {
-	inst.AccountMetaSlice[3] = ag_solanago.Meta(oneTimeAuthPrintingMint).WRITE()
+// SetOneTimePrintingAuthorizationMintAccount sets the "oneTimePrintingAuthorizationMint" account.
+// One time authorization printing mint - A mint you control that prints tokens that gives the bearer permission to mint any number of tokens from the printing mint one time via an endpoint with the token-metadata program for your metadata. Also burns the token.
+func (inst *DeprecatedCreateMasterEdition) SetOneTimePrintingAuthorizationMintAccount(oneTimePrintingAuthorizationMint ag_solanago.PublicKey) *DeprecatedCreateMasterEdition {
+	inst.AccountMetaSlice[3] = ag_solanago.Meta(oneTimePrintingAuthorizationMint).WRITE()
 	return inst
 }
 
-// GetOneTimeAuthPrintingMintAccount gets the "oneTimeAuthPrintingMint" account.
-// One time authorization printing mint - A mint you control that prints tokens that gives the bearer permission to mint any
-// number of tokens from the printing mint one time via an endpoint with the token-metadata program for your metadata. Also burns the token.
-func (inst *DeprecatedCreateMasterEdition) GetOneTimeAuthPrintingMintAccount() *ag_solanago.AccountMeta {
+// GetOneTimePrintingAuthorizationMintAccount gets the "oneTimePrintingAuthorizationMint" account.
+// One time authorization printing mint - A mint you control that prints tokens that gives the bearer permission to mint any number of tokens from the printing mint one time via an endpoint with the token-metadata program for your metadata. Also burns the token.
+func (inst *DeprecatedCreateMasterEdition) GetOneTimePrintingAuthorizationMintAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(3)
 }
 
-// SetCurrentUpdateAuthorityAccount sets the "currentUpdateAuthority" account.
+// SetUpdateAuthorityAccount sets the "updateAuthority" account.
 // Current Update authority key
-func (inst *DeprecatedCreateMasterEdition) SetCurrentUpdateAuthorityAccount(currentUpdateAuthority ag_solanago.PublicKey) *DeprecatedCreateMasterEdition {
-	inst.AccountMetaSlice[4] = ag_solanago.Meta(currentUpdateAuthority).SIGNER()
+func (inst *DeprecatedCreateMasterEdition) SetUpdateAuthorityAccount(updateAuthority ag_solanago.PublicKey) *DeprecatedCreateMasterEdition {
+	inst.AccountMetaSlice[4] = ag_solanago.Meta(updateAuthority).SIGNER()
 	return inst
 }
 
-// GetCurrentUpdateAuthorityAccount gets the "currentUpdateAuthority" account.
+// GetUpdateAuthorityAccount gets the "updateAuthority" account.
 // Current Update authority key
-func (inst *DeprecatedCreateMasterEdition) GetCurrentUpdateAuthorityAccount() *ag_solanago.AccountMeta {
+func (inst *DeprecatedCreateMasterEdition) GetUpdateAuthorityAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(4)
 }
 
@@ -155,16 +140,16 @@ func (inst *DeprecatedCreateMasterEdition) GetPrintingMintAuthorityAccount() *ag
 	return inst.AccountMetaSlice.Get(5)
 }
 
-// SetMintAuthorityOnMetadataMintAccount sets the "mintAuthorityOnMetadataMint" account.
+// SetMintAuthorityAccount sets the "mintAuthority" account.
 // Mint authority on the metadata's mint - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY
-func (inst *DeprecatedCreateMasterEdition) SetMintAuthorityOnMetadataMintAccount(mintAuthorityOnMetadataMint ag_solanago.PublicKey) *DeprecatedCreateMasterEdition {
-	inst.AccountMetaSlice[6] = ag_solanago.Meta(mintAuthorityOnMetadataMint).SIGNER()
+func (inst *DeprecatedCreateMasterEdition) SetMintAuthorityAccount(mintAuthority ag_solanago.PublicKey) *DeprecatedCreateMasterEdition {
+	inst.AccountMetaSlice[6] = ag_solanago.Meta(mintAuthority).SIGNER()
 	return inst
 }
 
-// GetMintAuthorityOnMetadataMintAccount gets the "mintAuthorityOnMetadataMint" account.
+// GetMintAuthorityAccount gets the "mintAuthority" account.
 // Mint authority on the metadata's mint - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY
-func (inst *DeprecatedCreateMasterEdition) GetMintAuthorityOnMetadataMintAccount() *ag_solanago.AccountMeta {
+func (inst *DeprecatedCreateMasterEdition) GetMintAuthorityAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(6)
 }
 
@@ -207,16 +192,16 @@ func (inst *DeprecatedCreateMasterEdition) GetTokenProgramAccount() *ag_solanago
 	return inst.AccountMetaSlice.Get(9)
 }
 
-// SetSystemAccount sets the "system" account.
+// SetSystemProgramAccount sets the "systemProgram" account.
 // System program
-func (inst *DeprecatedCreateMasterEdition) SetSystemAccount(system ag_solanago.PublicKey) *DeprecatedCreateMasterEdition {
-	inst.AccountMetaSlice[10] = ag_solanago.Meta(system)
+func (inst *DeprecatedCreateMasterEdition) SetSystemProgramAccount(systemProgram ag_solanago.PublicKey) *DeprecatedCreateMasterEdition {
+	inst.AccountMetaSlice[10] = ag_solanago.Meta(systemProgram)
 	return inst
 }
 
-// GetSystemAccount gets the "system" account.
+// GetSystemProgramAccount gets the "systemProgram" account.
 // System program
-func (inst *DeprecatedCreateMasterEdition) GetSystemAccount() *ag_solanago.AccountMeta {
+func (inst *DeprecatedCreateMasterEdition) GetSystemProgramAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(10)
 }
 
@@ -233,16 +218,16 @@ func (inst *DeprecatedCreateMasterEdition) GetRentAccount() *ag_solanago.Account
 	return inst.AccountMetaSlice.Get(11)
 }
 
-// SetOneTimeAuthorizationPrintingMintAuthorityAccount sets the "oneTimeAuthorizationPrintingMintAuthority" account.
+// SetOneTimePrintingAuthorizationMintAuthorityAccount sets the "oneTimePrintingAuthorizationMintAuthority" account.
 // One time authorization printing mint authority - must be provided if using max supply. THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY.
-func (inst *DeprecatedCreateMasterEdition) SetOneTimeAuthorizationPrintingMintAuthorityAccount(oneTimeAuthorizationPrintingMintAuthority ag_solanago.PublicKey) *DeprecatedCreateMasterEdition {
-	inst.AccountMetaSlice[12] = ag_solanago.Meta(oneTimeAuthorizationPrintingMintAuthority).SIGNER()
+func (inst *DeprecatedCreateMasterEdition) SetOneTimePrintingAuthorizationMintAuthorityAccount(oneTimePrintingAuthorizationMintAuthority ag_solanago.PublicKey) *DeprecatedCreateMasterEdition {
+	inst.AccountMetaSlice[12] = ag_solanago.Meta(oneTimePrintingAuthorizationMintAuthority).SIGNER()
 	return inst
 }
 
-// GetOneTimeAuthorizationPrintingMintAuthorityAccount gets the "oneTimeAuthorizationPrintingMintAuthority" account.
+// GetOneTimePrintingAuthorizationMintAuthorityAccount gets the "oneTimePrintingAuthorizationMintAuthority" account.
 // One time authorization printing mint authority - must be provided if using max supply. THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY.
-func (inst *DeprecatedCreateMasterEdition) GetOneTimeAuthorizationPrintingMintAuthorityAccount() *ag_solanago.AccountMeta {
+func (inst *DeprecatedCreateMasterEdition) GetOneTimePrintingAuthorizationMintAuthorityAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(12)
 }
 
@@ -264,35 +249,28 @@ func (inst DeprecatedCreateMasterEdition) ValidateAndBuild() (*Instruction, erro
 }
 
 func (inst *DeprecatedCreateMasterEdition) Validate() error {
-	// Check whether all (required) parameters are set:
-	{
-		if inst.Args == nil {
-			return errors.New("Args parameter is not set")
-		}
-	}
-
 	// Check whether all (required) accounts are set:
 	{
 		if inst.AccountMetaSlice[0] == nil {
-			return errors.New("accounts.UnallocatedEditionV1 is not set")
+			return errors.New("accounts.Edition is not set")
 		}
 		if inst.AccountMetaSlice[1] == nil {
-			return errors.New("accounts.MetadataMint is not set")
+			return errors.New("accounts.Mint is not set")
 		}
 		if inst.AccountMetaSlice[2] == nil {
 			return errors.New("accounts.PrintingMint is not set")
 		}
 		if inst.AccountMetaSlice[3] == nil {
-			return errors.New("accounts.OneTimeAuthPrintingMint is not set")
+			return errors.New("accounts.OneTimePrintingAuthorizationMint is not set")
 		}
 		if inst.AccountMetaSlice[4] == nil {
-			return errors.New("accounts.CurrentUpdateAuthority is not set")
+			return errors.New("accounts.UpdateAuthority is not set")
 		}
 		if inst.AccountMetaSlice[5] == nil {
 			return errors.New("accounts.PrintingMintAuthority is not set")
 		}
 		if inst.AccountMetaSlice[6] == nil {
-			return errors.New("accounts.MintAuthorityOnMetadataMint is not set")
+			return errors.New("accounts.MintAuthority is not set")
 		}
 		if inst.AccountMetaSlice[7] == nil {
 			return errors.New("accounts.Metadata is not set")
@@ -304,13 +282,13 @@ func (inst *DeprecatedCreateMasterEdition) Validate() error {
 			return errors.New("accounts.TokenProgram is not set")
 		}
 		if inst.AccountMetaSlice[10] == nil {
-			return errors.New("accounts.System is not set")
+			return errors.New("accounts.SystemProgram is not set")
 		}
 		if inst.AccountMetaSlice[11] == nil {
 			return errors.New("accounts.Rent is not set")
 		}
 		if inst.AccountMetaSlice[12] == nil {
-			return errors.New("accounts.OneTimeAuthorizationPrintingMintAuthority is not set")
+			return errors.New("accounts.OneTimePrintingAuthorizationMintAuthority is not set")
 		}
 	}
 	return nil
@@ -325,78 +303,63 @@ func (inst *DeprecatedCreateMasterEdition) EncodeToTree(parent ag_treeout.Branch
 				ParentFunc(func(instructionBranch ag_treeout.Branches) {
 
 					// Parameters of the instruction:
-					instructionBranch.Child("Params[len=1]").ParentFunc(func(paramsBranch ag_treeout.Branches) {
-						paramsBranch.Child(ag_format.Param("Args", *inst.Args))
-					})
+					instructionBranch.Child("Params[len=0]").ParentFunc(func(paramsBranch ag_treeout.Branches) {})
 
 					// Accounts of the instruction:
 					instructionBranch.Child("Accounts[len=13]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
-						accountsBranch.Child(ag_format.Meta("                     unallocatedEditionV1", inst.AccountMetaSlice.Get(0)))
-						accountsBranch.Child(ag_format.Meta("                             metadataMint", inst.AccountMetaSlice.Get(1)))
+						accountsBranch.Child(ag_format.Meta("                                  edition", inst.AccountMetaSlice.Get(0)))
+						accountsBranch.Child(ag_format.Meta("                                     mint", inst.AccountMetaSlice.Get(1)))
 						accountsBranch.Child(ag_format.Meta("                             printingMint", inst.AccountMetaSlice.Get(2)))
-						accountsBranch.Child(ag_format.Meta("                  oneTimeAuthPrintingMint", inst.AccountMetaSlice.Get(3)))
-						accountsBranch.Child(ag_format.Meta("                   currentUpdateAuthority", inst.AccountMetaSlice.Get(4)))
+						accountsBranch.Child(ag_format.Meta("         oneTimePrintingAuthorizationMint", inst.AccountMetaSlice.Get(3)))
+						accountsBranch.Child(ag_format.Meta("                          updateAuthority", inst.AccountMetaSlice.Get(4)))
 						accountsBranch.Child(ag_format.Meta("                    printingMintAuthority", inst.AccountMetaSlice.Get(5)))
-						accountsBranch.Child(ag_format.Meta("              mintAuthorityOnMetadataMint", inst.AccountMetaSlice.Get(6)))
+						accountsBranch.Child(ag_format.Meta("                            mintAuthority", inst.AccountMetaSlice.Get(6)))
 						accountsBranch.Child(ag_format.Meta("                                 metadata", inst.AccountMetaSlice.Get(7)))
 						accountsBranch.Child(ag_format.Meta("                                    payer", inst.AccountMetaSlice.Get(8)))
 						accountsBranch.Child(ag_format.Meta("                             tokenProgram", inst.AccountMetaSlice.Get(9)))
-						accountsBranch.Child(ag_format.Meta("                                   system", inst.AccountMetaSlice.Get(10)))
+						accountsBranch.Child(ag_format.Meta("                            systemProgram", inst.AccountMetaSlice.Get(10)))
 						accountsBranch.Child(ag_format.Meta("                                     rent", inst.AccountMetaSlice.Get(11)))
-						accountsBranch.Child(ag_format.Meta("oneTimeAuthorizationPrintingMintAuthority", inst.AccountMetaSlice.Get(12)))
+						accountsBranch.Child(ag_format.Meta("oneTimePrintingAuthorizationMintAuthority", inst.AccountMetaSlice.Get(12)))
 					})
 				})
 		})
 }
 
 func (obj DeprecatedCreateMasterEdition) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
-	// Serialize `Args` param:
-	err = encoder.Encode(obj.Args)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 func (obj *DeprecatedCreateMasterEdition) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
-	// Deserialize `Args`:
-	err = decoder.Decode(&obj.Args)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
 // NewDeprecatedCreateMasterEditionInstruction declares a new DeprecatedCreateMasterEdition instruction with the provided parameters and accounts.
 func NewDeprecatedCreateMasterEditionInstruction(
-	// Parameters:
-	args CreateMasterEditionArgs,
 	// Accounts:
-	unallocatedEditionV1 ag_solanago.PublicKey,
-	metadataMint ag_solanago.PublicKey,
+	edition ag_solanago.PublicKey,
+	mint ag_solanago.PublicKey,
 	printingMint ag_solanago.PublicKey,
-	oneTimeAuthPrintingMint ag_solanago.PublicKey,
-	currentUpdateAuthority ag_solanago.PublicKey,
+	oneTimePrintingAuthorizationMint ag_solanago.PublicKey,
+	updateAuthority ag_solanago.PublicKey,
 	printingMintAuthority ag_solanago.PublicKey,
-	mintAuthorityOnMetadataMint ag_solanago.PublicKey,
+	mintAuthority ag_solanago.PublicKey,
 	metadata ag_solanago.PublicKey,
 	payer ag_solanago.PublicKey,
 	tokenProgram ag_solanago.PublicKey,
-	system ag_solanago.PublicKey,
+	systemProgram ag_solanago.PublicKey,
 	rent ag_solanago.PublicKey,
-	oneTimeAuthorizationPrintingMintAuthority ag_solanago.PublicKey) *DeprecatedCreateMasterEdition {
+	oneTimePrintingAuthorizationMintAuthority ag_solanago.PublicKey) *DeprecatedCreateMasterEdition {
 	return NewDeprecatedCreateMasterEditionInstructionBuilder().
-		SetArgs(args).
-		SetUnallocatedEditionV1Account(unallocatedEditionV1).
-		SetMetadataMintAccount(metadataMint).
+		SetEditionAccount(edition).
+		SetMintAccount(mint).
 		SetPrintingMintAccount(printingMint).
-		SetOneTimeAuthPrintingMintAccount(oneTimeAuthPrintingMint).
-		SetCurrentUpdateAuthorityAccount(currentUpdateAuthority).
+		SetOneTimePrintingAuthorizationMintAccount(oneTimePrintingAuthorizationMint).
+		SetUpdateAuthorityAccount(updateAuthority).
 		SetPrintingMintAuthorityAccount(printingMintAuthority).
-		SetMintAuthorityOnMetadataMintAccount(mintAuthorityOnMetadataMint).
+		SetMintAuthorityAccount(mintAuthority).
 		SetMetadataAccount(metadata).
 		SetPayerAccount(payer).
 		SetTokenProgramAccount(tokenProgram).
-		SetSystemAccount(system).
+		SetSystemProgramAccount(systemProgram).
 		SetRentAccount(rent).
-		SetOneTimeAuthorizationPrintingMintAuthorityAccount(oneTimeAuthorizationPrintingMintAuthority)
+		SetOneTimePrintingAuthorizationMintAuthorityAccount(oneTimePrintingAuthorizationMintAuthority)
 }

@@ -10,10 +10,9 @@ import (
 	ag_treeout "github.com/gagliardetto/treeout"
 )
 
-// Utilize or Use an NFT , burns the NFT and returns the lamports to the update authority if the use method is burn and its out of uses.
-// Use Authority can be the Holder of the NFT, or a Delegated Use Authority.
+// Utilize is the `Utilize` instruction.
 type Utilize struct {
-	Args *UtilizeArgs
+	UtilizeArgs *UtilizeArgs
 
 	// [0] = [WRITE] metadata
 	// ··········· Metadata account
@@ -21,32 +20,32 @@ type Utilize struct {
 	// [1] = [WRITE] tokenAccount
 	// ··········· Token Account Of NFT
 	//
-	// [2] = [WRITE] metadataMint
+	// [2] = [WRITE] mint
 	// ··········· Mint of the Metadata
 	//
-	// [3] = [SIGNER] useAuthority
+	// [3] = [WRITE, SIGNER] useAuthority
 	// ··········· A Use Authority / Can be the current Owner of the NFT
 	//
-	// [4] = [SIGNER] payer
-	// ··········· Payer
-	//
-	// [5] = [] owner
+	// [4] = [] owner
 	// ··········· Owner
 	//
-	// [6] = [] tokenProgram
+	// [5] = [] tokenProgram
 	// ··········· Token program
 	//
-	// [7] = [] associatedTokenProgram
+	// [6] = [] ataProgram
 	// ··········· Associated Token program
 	//
-	// [8] = [] system
+	// [7] = [] systemProgram
 	// ··········· System program
 	//
-	// [9] = [] rent
+	// [8] = [] rent
 	// ··········· Rent info
 	//
-	// [10] = [WRITE] useAuthorityRecord
+	// [9] = [WRITE] useAuthorityRecord
 	// ··········· Use Authority Record PDA If present the program Assumes a delegated use authority
+	//
+	// [10] = [] burner
+	// ··········· Program As Signer (Burner)
 	ag_solanago.AccountMetaSlice `bin:"-"`
 }
 
@@ -58,9 +57,9 @@ func NewUtilizeInstructionBuilder() *Utilize {
 	return nd
 }
 
-// SetArgs sets the "args" parameter.
-func (inst *Utilize) SetArgs(args UtilizeArgs) *Utilize {
-	inst.Args = &args
+// SetUtilizeArgs sets the "utilizeArgs" parameter.
+func (inst *Utilize) SetUtilizeArgs(utilizeArgs UtilizeArgs) *Utilize {
+	inst.UtilizeArgs = &utilizeArgs
 	return inst
 }
 
@@ -77,36 +76,36 @@ func (inst *Utilize) GetMetadataAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(0)
 }
 
-// SetTokenAccount sets the "tokenAccount" account.
+// SetTokenAccountAccount sets the "tokenAccount" account.
 // Token Account Of NFT
-func (inst *Utilize) SetTokenAccount(tokenAccount ag_solanago.PublicKey) *Utilize {
+func (inst *Utilize) SetTokenAccountAccount(tokenAccount ag_solanago.PublicKey) *Utilize {
 	inst.AccountMetaSlice[1] = ag_solanago.Meta(tokenAccount).WRITE()
 	return inst
 }
 
-// GetTokenAccount gets the "tokenAccount" account.
+// GetTokenAccountAccount gets the "tokenAccount" account.
 // Token Account Of NFT
-func (inst *Utilize) GetTokenAccount() *ag_solanago.AccountMeta {
+func (inst *Utilize) GetTokenAccountAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(1)
 }
 
-// SetMetadataMintAccount sets the "metadataMint" account.
+// SetMintAccount sets the "mint" account.
 // Mint of the Metadata
-func (inst *Utilize) SetMetadataMintAccount(metadataMint ag_solanago.PublicKey) *Utilize {
-	inst.AccountMetaSlice[2] = ag_solanago.Meta(metadataMint).WRITE()
+func (inst *Utilize) SetMintAccount(mint ag_solanago.PublicKey) *Utilize {
+	inst.AccountMetaSlice[2] = ag_solanago.Meta(mint).WRITE()
 	return inst
 }
 
-// GetMetadataMintAccount gets the "metadataMint" account.
+// GetMintAccount gets the "mint" account.
 // Mint of the Metadata
-func (inst *Utilize) GetMetadataMintAccount() *ag_solanago.AccountMeta {
+func (inst *Utilize) GetMintAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(2)
 }
 
 // SetUseAuthorityAccount sets the "useAuthority" account.
 // A Use Authority / Can be the current Owner of the NFT
 func (inst *Utilize) SetUseAuthorityAccount(useAuthority ag_solanago.PublicKey) *Utilize {
-	inst.AccountMetaSlice[3] = ag_solanago.Meta(useAuthority).SIGNER()
+	inst.AccountMetaSlice[3] = ag_solanago.Meta(useAuthority).WRITE().SIGNER()
 	return inst
 }
 
@@ -116,94 +115,94 @@ func (inst *Utilize) GetUseAuthorityAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(3)
 }
 
-// SetPayerAccount sets the "payer" account.
-// Payer
-func (inst *Utilize) SetPayerAccount(payer ag_solanago.PublicKey) *Utilize {
-	inst.AccountMetaSlice[4] = ag_solanago.Meta(payer).SIGNER()
-	return inst
-}
-
-// GetPayerAccount gets the "payer" account.
-// Payer
-func (inst *Utilize) GetPayerAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(4)
-}
-
 // SetOwnerAccount sets the "owner" account.
 // Owner
 func (inst *Utilize) SetOwnerAccount(owner ag_solanago.PublicKey) *Utilize {
-	inst.AccountMetaSlice[5] = ag_solanago.Meta(owner)
+	inst.AccountMetaSlice[4] = ag_solanago.Meta(owner)
 	return inst
 }
 
 // GetOwnerAccount gets the "owner" account.
 // Owner
 func (inst *Utilize) GetOwnerAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(5)
+	return inst.AccountMetaSlice.Get(4)
 }
 
 // SetTokenProgramAccount sets the "tokenProgram" account.
 // Token program
 func (inst *Utilize) SetTokenProgramAccount(tokenProgram ag_solanago.PublicKey) *Utilize {
-	inst.AccountMetaSlice[6] = ag_solanago.Meta(tokenProgram)
+	inst.AccountMetaSlice[5] = ag_solanago.Meta(tokenProgram)
 	return inst
 }
 
 // GetTokenProgramAccount gets the "tokenProgram" account.
 // Token program
 func (inst *Utilize) GetTokenProgramAccount() *ag_solanago.AccountMeta {
+	return inst.AccountMetaSlice.Get(5)
+}
+
+// SetAtaProgramAccount sets the "ataProgram" account.
+// Associated Token program
+func (inst *Utilize) SetAtaProgramAccount(ataProgram ag_solanago.PublicKey) *Utilize {
+	inst.AccountMetaSlice[6] = ag_solanago.Meta(ataProgram)
+	return inst
+}
+
+// GetAtaProgramAccount gets the "ataProgram" account.
+// Associated Token program
+func (inst *Utilize) GetAtaProgramAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(6)
 }
 
-// SetAssociatedTokenProgramAccount sets the "associatedTokenProgram" account.
-// Associated Token program
-func (inst *Utilize) SetAssociatedTokenProgramAccount(associatedTokenProgram ag_solanago.PublicKey) *Utilize {
-	inst.AccountMetaSlice[7] = ag_solanago.Meta(associatedTokenProgram)
+// SetSystemProgramAccount sets the "systemProgram" account.
+// System program
+func (inst *Utilize) SetSystemProgramAccount(systemProgram ag_solanago.PublicKey) *Utilize {
+	inst.AccountMetaSlice[7] = ag_solanago.Meta(systemProgram)
 	return inst
 }
 
-// GetAssociatedTokenProgramAccount gets the "associatedTokenProgram" account.
-// Associated Token program
-func (inst *Utilize) GetAssociatedTokenProgramAccount() *ag_solanago.AccountMeta {
+// GetSystemProgramAccount gets the "systemProgram" account.
+// System program
+func (inst *Utilize) GetSystemProgramAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(7)
-}
-
-// SetSystemAccount sets the "system" account.
-// System program
-func (inst *Utilize) SetSystemAccount(system ag_solanago.PublicKey) *Utilize {
-	inst.AccountMetaSlice[8] = ag_solanago.Meta(system)
-	return inst
-}
-
-// GetSystemAccount gets the "system" account.
-// System program
-func (inst *Utilize) GetSystemAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(8)
 }
 
 // SetRentAccount sets the "rent" account.
 // Rent info
 func (inst *Utilize) SetRentAccount(rent ag_solanago.PublicKey) *Utilize {
-	inst.AccountMetaSlice[9] = ag_solanago.Meta(rent)
+	inst.AccountMetaSlice[8] = ag_solanago.Meta(rent)
 	return inst
 }
 
 // GetRentAccount gets the "rent" account.
 // Rent info
 func (inst *Utilize) GetRentAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(9)
+	return inst.AccountMetaSlice.Get(8)
 }
 
 // SetUseAuthorityRecordAccount sets the "useAuthorityRecord" account.
 // Use Authority Record PDA If present the program Assumes a delegated use authority
 func (inst *Utilize) SetUseAuthorityRecordAccount(useAuthorityRecord ag_solanago.PublicKey) *Utilize {
-	inst.AccountMetaSlice[10] = ag_solanago.Meta(useAuthorityRecord).WRITE()
+	inst.AccountMetaSlice[9] = ag_solanago.Meta(useAuthorityRecord).WRITE()
 	return inst
 }
 
 // GetUseAuthorityRecordAccount gets the "useAuthorityRecord" account (optional).
 // Use Authority Record PDA If present the program Assumes a delegated use authority
 func (inst *Utilize) GetUseAuthorityRecordAccount() *ag_solanago.AccountMeta {
+	return inst.AccountMetaSlice.Get(9)
+}
+
+// SetBurnerAccount sets the "burner" account.
+// Program As Signer (Burner)
+func (inst *Utilize) SetBurnerAccount(burner ag_solanago.PublicKey) *Utilize {
+	inst.AccountMetaSlice[10] = ag_solanago.Meta(burner)
+	return inst
+}
+
+// GetBurnerAccount gets the "burner" account (optional).
+// Program As Signer (Burner)
+func (inst *Utilize) GetBurnerAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(10)
 }
 
@@ -227,8 +226,8 @@ func (inst Utilize) ValidateAndBuild() (*Instruction, error) {
 func (inst *Utilize) Validate() error {
 	// Check whether all (required) parameters are set:
 	{
-		if inst.Args == nil {
-			return errors.New("Args parameter is not set")
+		if inst.UtilizeArgs == nil {
+			return errors.New("UtilizeArgs parameter is not set")
 		}
 	}
 
@@ -241,31 +240,30 @@ func (inst *Utilize) Validate() error {
 			return errors.New("accounts.TokenAccount is not set")
 		}
 		if inst.AccountMetaSlice[2] == nil {
-			return errors.New("accounts.MetadataMint is not set")
+			return errors.New("accounts.Mint is not set")
 		}
 		if inst.AccountMetaSlice[3] == nil {
 			return errors.New("accounts.UseAuthority is not set")
 		}
 		if inst.AccountMetaSlice[4] == nil {
-			return errors.New("accounts.Payer is not set")
-		}
-		if inst.AccountMetaSlice[5] == nil {
 			return errors.New("accounts.Owner is not set")
 		}
-		if inst.AccountMetaSlice[6] == nil {
+		if inst.AccountMetaSlice[5] == nil {
 			return errors.New("accounts.TokenProgram is not set")
 		}
+		if inst.AccountMetaSlice[6] == nil {
+			return errors.New("accounts.AtaProgram is not set")
+		}
 		if inst.AccountMetaSlice[7] == nil {
-			return errors.New("accounts.AssociatedTokenProgram is not set")
+			return errors.New("accounts.SystemProgram is not set")
 		}
 		if inst.AccountMetaSlice[8] == nil {
-			return errors.New("accounts.System is not set")
-		}
-		if inst.AccountMetaSlice[9] == nil {
 			return errors.New("accounts.Rent is not set")
 		}
 
-		// [10] = UseAuthorityRecord is optional
+		// [9] = UseAuthorityRecord is optional
+
+		// [10] = Burner is optional
 
 	}
 	return nil
@@ -281,38 +279,38 @@ func (inst *Utilize) EncodeToTree(parent ag_treeout.Branches) {
 
 					// Parameters of the instruction:
 					instructionBranch.Child("Params[len=1]").ParentFunc(func(paramsBranch ag_treeout.Branches) {
-						paramsBranch.Child(ag_format.Param("Args", *inst.Args))
+						paramsBranch.Child(ag_format.Param("UtilizeArgs", *inst.UtilizeArgs))
 					})
 
 					// Accounts of the instruction:
 					instructionBranch.Child("Accounts[len=11]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
-						accountsBranch.Child(ag_format.Meta("              metadata", inst.AccountMetaSlice.Get(0)))
-						accountsBranch.Child(ag_format.Meta("                 token", inst.AccountMetaSlice.Get(1)))
-						accountsBranch.Child(ag_format.Meta("          metadataMint", inst.AccountMetaSlice.Get(2)))
-						accountsBranch.Child(ag_format.Meta("          useAuthority", inst.AccountMetaSlice.Get(3)))
-						accountsBranch.Child(ag_format.Meta("                 payer", inst.AccountMetaSlice.Get(4)))
-						accountsBranch.Child(ag_format.Meta("                 owner", inst.AccountMetaSlice.Get(5)))
-						accountsBranch.Child(ag_format.Meta("          tokenProgram", inst.AccountMetaSlice.Get(6)))
-						accountsBranch.Child(ag_format.Meta("associatedTokenProgram", inst.AccountMetaSlice.Get(7)))
-						accountsBranch.Child(ag_format.Meta("                system", inst.AccountMetaSlice.Get(8)))
-						accountsBranch.Child(ag_format.Meta("                  rent", inst.AccountMetaSlice.Get(9)))
-						accountsBranch.Child(ag_format.Meta("    useAuthorityRecord", inst.AccountMetaSlice.Get(10)))
+						accountsBranch.Child(ag_format.Meta("          metadata", inst.AccountMetaSlice.Get(0)))
+						accountsBranch.Child(ag_format.Meta("             token", inst.AccountMetaSlice.Get(1)))
+						accountsBranch.Child(ag_format.Meta("              mint", inst.AccountMetaSlice.Get(2)))
+						accountsBranch.Child(ag_format.Meta("      useAuthority", inst.AccountMetaSlice.Get(3)))
+						accountsBranch.Child(ag_format.Meta("             owner", inst.AccountMetaSlice.Get(4)))
+						accountsBranch.Child(ag_format.Meta("      tokenProgram", inst.AccountMetaSlice.Get(5)))
+						accountsBranch.Child(ag_format.Meta("        ataProgram", inst.AccountMetaSlice.Get(6)))
+						accountsBranch.Child(ag_format.Meta("     systemProgram", inst.AccountMetaSlice.Get(7)))
+						accountsBranch.Child(ag_format.Meta("              rent", inst.AccountMetaSlice.Get(8)))
+						accountsBranch.Child(ag_format.Meta("useAuthorityRecord", inst.AccountMetaSlice.Get(9)))
+						accountsBranch.Child(ag_format.Meta("            burner", inst.AccountMetaSlice.Get(10)))
 					})
 				})
 		})
 }
 
 func (obj Utilize) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
-	// Serialize `Args` param:
-	err = encoder.Encode(obj.Args)
+	// Serialize `UtilizeArgs` param:
+	err = encoder.Encode(obj.UtilizeArgs)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 func (obj *Utilize) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
-	// Deserialize `Args`:
-	err = decoder.Decode(&obj.Args)
+	// Deserialize `UtilizeArgs`:
+	err = decoder.Decode(&obj.UtilizeArgs)
 	if err != nil {
 		return err
 	}
@@ -322,30 +320,30 @@ func (obj *Utilize) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error)
 // NewUtilizeInstruction declares a new Utilize instruction with the provided parameters and accounts.
 func NewUtilizeInstruction(
 	// Parameters:
-	args UtilizeArgs,
+	utilizeArgs UtilizeArgs,
 	// Accounts:
 	metadata ag_solanago.PublicKey,
 	tokenAccount ag_solanago.PublicKey,
-	metadataMint ag_solanago.PublicKey,
+	mint ag_solanago.PublicKey,
 	useAuthority ag_solanago.PublicKey,
-	payer ag_solanago.PublicKey,
 	owner ag_solanago.PublicKey,
 	tokenProgram ag_solanago.PublicKey,
-	associatedTokenProgram ag_solanago.PublicKey,
-	system ag_solanago.PublicKey,
+	ataProgram ag_solanago.PublicKey,
+	systemProgram ag_solanago.PublicKey,
 	rent ag_solanago.PublicKey,
-	useAuthorityRecord ag_solanago.PublicKey) *Utilize {
+	useAuthorityRecord ag_solanago.PublicKey,
+	burner ag_solanago.PublicKey) *Utilize {
 	return NewUtilizeInstructionBuilder().
-		SetArgs(args).
+		SetUtilizeArgs(utilizeArgs).
 		SetMetadataAccount(metadata).
-		SetTokenAccount(tokenAccount).
-		SetMetadataMintAccount(metadataMint).
+		SetTokenAccountAccount(tokenAccount).
+		SetMintAccount(mint).
 		SetUseAuthorityAccount(useAuthority).
-		SetPayerAccount(payer).
 		SetOwnerAccount(owner).
 		SetTokenProgramAccount(tokenProgram).
-		SetAssociatedTokenProgramAccount(associatedTokenProgram).
-		SetSystemAccount(system).
+		SetAtaProgramAccount(ataProgram).
+		SetSystemProgramAccount(systemProgram).
 		SetRentAccount(rent).
-		SetUseAuthorityRecordAccount(useAuthorityRecord)
+		SetUseAuthorityRecordAccount(useAuthorityRecord).
+		SetBurnerAccount(burner)
 }

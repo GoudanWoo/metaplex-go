@@ -10,37 +10,34 @@ import (
 	ag_treeout "github.com/gagliardetto/treeout"
 )
 
-// Revoke account to call `utilize` on this NFT
+// RevokeUseAuthority is the `RevokeUseAuthority` instruction.
 type RevokeUseAuthority struct {
 
-	// [0] = [WRITE] useAuthorityRecordPDA
+	// [0] = [WRITE] useAuthorityRecord
 	// ··········· Use Authority Record PDA
 	//
-	// [1] = [WRITE] ownedToken
-	// ··········· Owned Token Account Of Mint
-	//
-	// [2] = [SIGNER] owner
+	// [1] = [WRITE, SIGNER] owner
 	// ··········· Owner
 	//
-	// [3] = [SIGNER] payer
-	// ··········· Payer
-	//
-	// [4] = [] useAuthority
+	// [2] = [] user
 	// ··········· A Use Authority
+	//
+	// [3] = [WRITE] ownerTokenAccount
+	// ··········· Owned Token Account Of Mint
+	//
+	// [4] = [] mint
+	// ··········· Mint of Metadata
 	//
 	// [5] = [] metadata
 	// ··········· Metadata account
 	//
-	// [6] = [] metadataMint
-	// ··········· Mint of Metadata
-	//
-	// [7] = [] tokenProgram
+	// [6] = [] tokenProgram
 	// ··········· Token program
 	//
-	// [8] = [] system
+	// [7] = [] systemProgram
 	// ··········· System program
 	//
-	// [9] = [] rent
+	// [8] = [] rent
 	// ··········· Rent info
 	ag_solanago.AccountMetaSlice `bin:"-"`
 }
@@ -48,73 +45,73 @@ type RevokeUseAuthority struct {
 // NewRevokeUseAuthorityInstructionBuilder creates a new `RevokeUseAuthority` instruction builder.
 func NewRevokeUseAuthorityInstructionBuilder() *RevokeUseAuthority {
 	nd := &RevokeUseAuthority{
-		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 10),
+		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 9),
 	}
 	return nd
 }
 
-// SetUseAuthorityRecordPDAAccount sets the "useAuthorityRecordPDA" account.
+// SetUseAuthorityRecordAccount sets the "useAuthorityRecord" account.
 // Use Authority Record PDA
-func (inst *RevokeUseAuthority) SetUseAuthorityRecordPDAAccount(useAuthorityRecordPDA ag_solanago.PublicKey) *RevokeUseAuthority {
-	inst.AccountMetaSlice[0] = ag_solanago.Meta(useAuthorityRecordPDA).WRITE()
+func (inst *RevokeUseAuthority) SetUseAuthorityRecordAccount(useAuthorityRecord ag_solanago.PublicKey) *RevokeUseAuthority {
+	inst.AccountMetaSlice[0] = ag_solanago.Meta(useAuthorityRecord).WRITE()
 	return inst
 }
 
-// GetUseAuthorityRecordPDAAccount gets the "useAuthorityRecordPDA" account.
+// GetUseAuthorityRecordAccount gets the "useAuthorityRecord" account.
 // Use Authority Record PDA
-func (inst *RevokeUseAuthority) GetUseAuthorityRecordPDAAccount() *ag_solanago.AccountMeta {
+func (inst *RevokeUseAuthority) GetUseAuthorityRecordAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(0)
-}
-
-// SetOwnedTokenAccount sets the "ownedToken" account.
-// Owned Token Account Of Mint
-func (inst *RevokeUseAuthority) SetOwnedTokenAccount(ownedToken ag_solanago.PublicKey) *RevokeUseAuthority {
-	inst.AccountMetaSlice[1] = ag_solanago.Meta(ownedToken).WRITE()
-	return inst
-}
-
-// GetOwnedTokenAccount gets the "ownedToken" account.
-// Owned Token Account Of Mint
-func (inst *RevokeUseAuthority) GetOwnedTokenAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(1)
 }
 
 // SetOwnerAccount sets the "owner" account.
 // Owner
 func (inst *RevokeUseAuthority) SetOwnerAccount(owner ag_solanago.PublicKey) *RevokeUseAuthority {
-	inst.AccountMetaSlice[2] = ag_solanago.Meta(owner).SIGNER()
+	inst.AccountMetaSlice[1] = ag_solanago.Meta(owner).WRITE().SIGNER()
 	return inst
 }
 
 // GetOwnerAccount gets the "owner" account.
 // Owner
 func (inst *RevokeUseAuthority) GetOwnerAccount() *ag_solanago.AccountMeta {
+	return inst.AccountMetaSlice.Get(1)
+}
+
+// SetUserAccount sets the "user" account.
+// A Use Authority
+func (inst *RevokeUseAuthority) SetUserAccount(user ag_solanago.PublicKey) *RevokeUseAuthority {
+	inst.AccountMetaSlice[2] = ag_solanago.Meta(user)
+	return inst
+}
+
+// GetUserAccount gets the "user" account.
+// A Use Authority
+func (inst *RevokeUseAuthority) GetUserAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(2)
 }
 
-// SetPayerAccount sets the "payer" account.
-// Payer
-func (inst *RevokeUseAuthority) SetPayerAccount(payer ag_solanago.PublicKey) *RevokeUseAuthority {
-	inst.AccountMetaSlice[3] = ag_solanago.Meta(payer).SIGNER()
+// SetOwnerTokenAccountAccount sets the "ownerTokenAccount" account.
+// Owned Token Account Of Mint
+func (inst *RevokeUseAuthority) SetOwnerTokenAccountAccount(ownerTokenAccount ag_solanago.PublicKey) *RevokeUseAuthority {
+	inst.AccountMetaSlice[3] = ag_solanago.Meta(ownerTokenAccount).WRITE()
 	return inst
 }
 
-// GetPayerAccount gets the "payer" account.
-// Payer
-func (inst *RevokeUseAuthority) GetPayerAccount() *ag_solanago.AccountMeta {
+// GetOwnerTokenAccountAccount gets the "ownerTokenAccount" account.
+// Owned Token Account Of Mint
+func (inst *RevokeUseAuthority) GetOwnerTokenAccountAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(3)
 }
 
-// SetUseAuthorityAccount sets the "useAuthority" account.
-// A Use Authority
-func (inst *RevokeUseAuthority) SetUseAuthorityAccount(useAuthority ag_solanago.PublicKey) *RevokeUseAuthority {
-	inst.AccountMetaSlice[4] = ag_solanago.Meta(useAuthority)
+// SetMintAccount sets the "mint" account.
+// Mint of Metadata
+func (inst *RevokeUseAuthority) SetMintAccount(mint ag_solanago.PublicKey) *RevokeUseAuthority {
+	inst.AccountMetaSlice[4] = ag_solanago.Meta(mint)
 	return inst
 }
 
-// GetUseAuthorityAccount gets the "useAuthority" account.
-// A Use Authority
-func (inst *RevokeUseAuthority) GetUseAuthorityAccount() *ag_solanago.AccountMeta {
+// GetMintAccount gets the "mint" account.
+// Mint of Metadata
+func (inst *RevokeUseAuthority) GetMintAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(4)
 }
 
@@ -131,56 +128,43 @@ func (inst *RevokeUseAuthority) GetMetadataAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(5)
 }
 
-// SetMetadataMintAccount sets the "metadataMint" account.
-// Mint of Metadata
-func (inst *RevokeUseAuthority) SetMetadataMintAccount(metadataMint ag_solanago.PublicKey) *RevokeUseAuthority {
-	inst.AccountMetaSlice[6] = ag_solanago.Meta(metadataMint)
-	return inst
-}
-
-// GetMetadataMintAccount gets the "metadataMint" account.
-// Mint of Metadata
-func (inst *RevokeUseAuthority) GetMetadataMintAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(6)
-}
-
 // SetTokenProgramAccount sets the "tokenProgram" account.
 // Token program
 func (inst *RevokeUseAuthority) SetTokenProgramAccount(tokenProgram ag_solanago.PublicKey) *RevokeUseAuthority {
-	inst.AccountMetaSlice[7] = ag_solanago.Meta(tokenProgram)
+	inst.AccountMetaSlice[6] = ag_solanago.Meta(tokenProgram)
 	return inst
 }
 
 // GetTokenProgramAccount gets the "tokenProgram" account.
 // Token program
 func (inst *RevokeUseAuthority) GetTokenProgramAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(7)
+	return inst.AccountMetaSlice.Get(6)
 }
 
-// SetSystemAccount sets the "system" account.
+// SetSystemProgramAccount sets the "systemProgram" account.
 // System program
-func (inst *RevokeUseAuthority) SetSystemAccount(system ag_solanago.PublicKey) *RevokeUseAuthority {
-	inst.AccountMetaSlice[8] = ag_solanago.Meta(system)
+func (inst *RevokeUseAuthority) SetSystemProgramAccount(systemProgram ag_solanago.PublicKey) *RevokeUseAuthority {
+	inst.AccountMetaSlice[7] = ag_solanago.Meta(systemProgram)
 	return inst
 }
 
-// GetSystemAccount gets the "system" account.
+// GetSystemProgramAccount gets the "systemProgram" account.
 // System program
-func (inst *RevokeUseAuthority) GetSystemAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(8)
+func (inst *RevokeUseAuthority) GetSystemProgramAccount() *ag_solanago.AccountMeta {
+	return inst.AccountMetaSlice.Get(7)
 }
 
 // SetRentAccount sets the "rent" account.
 // Rent info
 func (inst *RevokeUseAuthority) SetRentAccount(rent ag_solanago.PublicKey) *RevokeUseAuthority {
-	inst.AccountMetaSlice[9] = ag_solanago.Meta(rent)
+	inst.AccountMetaSlice[8] = ag_solanago.Meta(rent)
 	return inst
 }
 
-// GetRentAccount gets the "rent" account.
+// GetRentAccount gets the "rent" account (optional).
 // Rent info
 func (inst *RevokeUseAuthority) GetRentAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(9)
+	return inst.AccountMetaSlice.Get(8)
 }
 
 func (inst RevokeUseAuthority) Build() *Instruction {
@@ -204,35 +188,32 @@ func (inst *RevokeUseAuthority) Validate() error {
 	// Check whether all (required) accounts are set:
 	{
 		if inst.AccountMetaSlice[0] == nil {
-			return errors.New("accounts.UseAuthorityRecordPDA is not set")
+			return errors.New("accounts.UseAuthorityRecord is not set")
 		}
 		if inst.AccountMetaSlice[1] == nil {
-			return errors.New("accounts.OwnedToken is not set")
-		}
-		if inst.AccountMetaSlice[2] == nil {
 			return errors.New("accounts.Owner is not set")
 		}
+		if inst.AccountMetaSlice[2] == nil {
+			return errors.New("accounts.User is not set")
+		}
 		if inst.AccountMetaSlice[3] == nil {
-			return errors.New("accounts.Payer is not set")
+			return errors.New("accounts.OwnerTokenAccount is not set")
 		}
 		if inst.AccountMetaSlice[4] == nil {
-			return errors.New("accounts.UseAuthority is not set")
+			return errors.New("accounts.Mint is not set")
 		}
 		if inst.AccountMetaSlice[5] == nil {
 			return errors.New("accounts.Metadata is not set")
 		}
 		if inst.AccountMetaSlice[6] == nil {
-			return errors.New("accounts.MetadataMint is not set")
-		}
-		if inst.AccountMetaSlice[7] == nil {
 			return errors.New("accounts.TokenProgram is not set")
 		}
-		if inst.AccountMetaSlice[8] == nil {
-			return errors.New("accounts.System is not set")
+		if inst.AccountMetaSlice[7] == nil {
+			return errors.New("accounts.SystemProgram is not set")
 		}
-		if inst.AccountMetaSlice[9] == nil {
-			return errors.New("accounts.Rent is not set")
-		}
+
+		// [8] = Rent is optional
+
 	}
 	return nil
 }
@@ -249,17 +230,16 @@ func (inst *RevokeUseAuthority) EncodeToTree(parent ag_treeout.Branches) {
 					instructionBranch.Child("Params[len=0]").ParentFunc(func(paramsBranch ag_treeout.Branches) {})
 
 					// Accounts of the instruction:
-					instructionBranch.Child("Accounts[len=10]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
-						accountsBranch.Child(ag_format.Meta("useAuthorityRecordPDA", inst.AccountMetaSlice.Get(0)))
-						accountsBranch.Child(ag_format.Meta("           ownedToken", inst.AccountMetaSlice.Get(1)))
-						accountsBranch.Child(ag_format.Meta("                owner", inst.AccountMetaSlice.Get(2)))
-						accountsBranch.Child(ag_format.Meta("                payer", inst.AccountMetaSlice.Get(3)))
-						accountsBranch.Child(ag_format.Meta("         useAuthority", inst.AccountMetaSlice.Get(4)))
-						accountsBranch.Child(ag_format.Meta("             metadata", inst.AccountMetaSlice.Get(5)))
-						accountsBranch.Child(ag_format.Meta("         metadataMint", inst.AccountMetaSlice.Get(6)))
-						accountsBranch.Child(ag_format.Meta("         tokenProgram", inst.AccountMetaSlice.Get(7)))
-						accountsBranch.Child(ag_format.Meta("               system", inst.AccountMetaSlice.Get(8)))
-						accountsBranch.Child(ag_format.Meta("                 rent", inst.AccountMetaSlice.Get(9)))
+					instructionBranch.Child("Accounts[len=9]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
+						accountsBranch.Child(ag_format.Meta("useAuthorityRecord", inst.AccountMetaSlice.Get(0)))
+						accountsBranch.Child(ag_format.Meta("             owner", inst.AccountMetaSlice.Get(1)))
+						accountsBranch.Child(ag_format.Meta("              user", inst.AccountMetaSlice.Get(2)))
+						accountsBranch.Child(ag_format.Meta("        ownerToken", inst.AccountMetaSlice.Get(3)))
+						accountsBranch.Child(ag_format.Meta("              mint", inst.AccountMetaSlice.Get(4)))
+						accountsBranch.Child(ag_format.Meta("          metadata", inst.AccountMetaSlice.Get(5)))
+						accountsBranch.Child(ag_format.Meta("      tokenProgram", inst.AccountMetaSlice.Get(6)))
+						accountsBranch.Child(ag_format.Meta("     systemProgram", inst.AccountMetaSlice.Get(7)))
+						accountsBranch.Child(ag_format.Meta("              rent", inst.AccountMetaSlice.Get(8)))
 					})
 				})
 		})
@@ -275,25 +255,23 @@ func (obj *RevokeUseAuthority) UnmarshalWithDecoder(decoder *ag_binary.Decoder) 
 // NewRevokeUseAuthorityInstruction declares a new RevokeUseAuthority instruction with the provided parameters and accounts.
 func NewRevokeUseAuthorityInstruction(
 	// Accounts:
-	useAuthorityRecordPDA ag_solanago.PublicKey,
-	ownedToken ag_solanago.PublicKey,
+	useAuthorityRecord ag_solanago.PublicKey,
 	owner ag_solanago.PublicKey,
-	payer ag_solanago.PublicKey,
-	useAuthority ag_solanago.PublicKey,
+	user ag_solanago.PublicKey,
+	ownerTokenAccount ag_solanago.PublicKey,
+	mint ag_solanago.PublicKey,
 	metadata ag_solanago.PublicKey,
-	metadataMint ag_solanago.PublicKey,
 	tokenProgram ag_solanago.PublicKey,
-	system ag_solanago.PublicKey,
+	systemProgram ag_solanago.PublicKey,
 	rent ag_solanago.PublicKey) *RevokeUseAuthority {
 	return NewRevokeUseAuthorityInstructionBuilder().
-		SetUseAuthorityRecordPDAAccount(useAuthorityRecordPDA).
-		SetOwnedTokenAccount(ownedToken).
+		SetUseAuthorityRecordAccount(useAuthorityRecord).
 		SetOwnerAccount(owner).
-		SetPayerAccount(payer).
-		SetUseAuthorityAccount(useAuthority).
+		SetUserAccount(user).
+		SetOwnerTokenAccountAccount(ownerTokenAccount).
+		SetMintAccount(mint).
 		SetMetadataAccount(metadata).
-		SetMetadataMintAccount(metadataMint).
 		SetTokenProgramAccount(tokenProgram).
-		SetSystemAccount(system).
+		SetSystemProgramAccount(systemProgram).
 		SetRentAccount(rent)
 }

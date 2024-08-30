@@ -10,20 +10,19 @@ import (
 	ag_treeout "github.com/gagliardetto/treeout"
 )
 
-// Given an authority token minted by the Printing mint of a master edition, and a brand new non-metadata-ed mint with one token
-// make a new Metadata + Edition that is a child of the master edition denoted by this authority token.
+// DeprecatedMintNewEditionFromMasterEditionViaPrintingToken is the `DeprecatedMintNewEditionFromMasterEditionViaPrintingToken` instruction.
 type DeprecatedMintNewEditionFromMasterEditionViaPrintingToken struct {
 
-	// [0] = [WRITE] newMetadataKey
+	// [0] = [WRITE] metadata
 	// ··········· New Metadata key (pda of ['metadata', program id, mint id])
 	//
-	// [1] = [WRITE] newEditionV1
+	// [1] = [WRITE] edition
 	// ··········· New Edition V1 (pda of ['metadata', program id, mint id, 'edition'])
 	//
-	// [2] = [WRITE] masterRecordEditionV1
+	// [2] = [WRITE] masterEdition
 	// ··········· Master Record Edition V1 (pda of ['metadata', program id, master metadata mint id, 'edition'])
 	//
-	// [3] = [WRITE] mintOfNewToken
+	// [3] = [WRITE] mint
 	// ··········· Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY
 	//
 	// [4] = [SIGNER] mintAuthority
@@ -32,10 +31,10 @@ type DeprecatedMintNewEditionFromMasterEditionViaPrintingToken struct {
 	// [5] = [WRITE] printingMint
 	// ··········· Printing Mint of master record edition
 	//
-	// [6] = [WRITE] tokenAccount
+	// [6] = [WRITE] masterTokenAccount
 	// ··········· Token account containing Printing mint token to be transferred
 	//
-	// [7] = [WRITE] editionPDA
+	// [7] = [WRITE] editionMarker
 	// ··········· Edition pda to mark creation - will be checked for pre-existence. (pda of ['metadata', program id, master mint id, edition_number])
 	//
 	// [8] = [SIGNER] burnAuthority
@@ -44,24 +43,23 @@ type DeprecatedMintNewEditionFromMasterEditionViaPrintingToken struct {
 	// [9] = [SIGNER] payer
 	// ··········· payer
 	//
-	// [10] = [] updateAuthority
+	// [10] = [] masterUpdateAuthority
 	// ··········· update authority info for new metadata account
 	//
-	// [11] = [] masterRecordMetadata
+	// [11] = [] masterMetadata
 	// ··········· Master record metadata account
 	//
 	// [12] = [] tokenProgram
 	// ··········· Token program
 	//
-	// [13] = [] system
+	// [13] = [] systemProgram
 	// ··········· System program
 	//
 	// [14] = [] rent
 	// ··········· Rent info
 	//
 	// [15] = [WRITE] reservationList
-	// ··········· [optional] Reservation List - If present, and you are on this list, you can get
-	// ··········· an edition number given by your position on the list.
+	// ··········· Reservation List - If present, and you are on this list, you can get an edition number given by your position on the list.
 	ag_solanago.AccountMetaSlice `bin:"-"`
 }
 
@@ -73,55 +71,55 @@ func NewDeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionBuil
 	return nd
 }
 
-// SetNewMetadataKeyAccount sets the "newMetadataKey" account.
+// SetMetadataAccount sets the "metadata" account.
 // New Metadata key (pda of ['metadata', program id, mint id])
-func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) SetNewMetadataKeyAccount(newMetadataKey ag_solanago.PublicKey) *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
-	inst.AccountMetaSlice[0] = ag_solanago.Meta(newMetadataKey).WRITE()
+func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) SetMetadataAccount(metadata ag_solanago.PublicKey) *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
+	inst.AccountMetaSlice[0] = ag_solanago.Meta(metadata).WRITE()
 	return inst
 }
 
-// GetNewMetadataKeyAccount gets the "newMetadataKey" account.
+// GetMetadataAccount gets the "metadata" account.
 // New Metadata key (pda of ['metadata', program id, mint id])
-func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) GetNewMetadataKeyAccount() *ag_solanago.AccountMeta {
+func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) GetMetadataAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(0)
 }
 
-// SetNewEditionV1Account sets the "newEditionV1" account.
+// SetEditionAccount sets the "edition" account.
 // New Edition V1 (pda of ['metadata', program id, mint id, 'edition'])
-func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) SetNewEditionV1Account(newEditionV1 ag_solanago.PublicKey) *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
-	inst.AccountMetaSlice[1] = ag_solanago.Meta(newEditionV1).WRITE()
+func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) SetEditionAccount(edition ag_solanago.PublicKey) *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
+	inst.AccountMetaSlice[1] = ag_solanago.Meta(edition).WRITE()
 	return inst
 }
 
-// GetNewEditionV1Account gets the "newEditionV1" account.
+// GetEditionAccount gets the "edition" account.
 // New Edition V1 (pda of ['metadata', program id, mint id, 'edition'])
-func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) GetNewEditionV1Account() *ag_solanago.AccountMeta {
+func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) GetEditionAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(1)
 }
 
-// SetMasterRecordEditionV1Account sets the "masterRecordEditionV1" account.
+// SetMasterEditionAccount sets the "masterEdition" account.
 // Master Record Edition V1 (pda of ['metadata', program id, master metadata mint id, 'edition'])
-func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) SetMasterRecordEditionV1Account(masterRecordEditionV1 ag_solanago.PublicKey) *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
-	inst.AccountMetaSlice[2] = ag_solanago.Meta(masterRecordEditionV1).WRITE()
+func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) SetMasterEditionAccount(masterEdition ag_solanago.PublicKey) *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
+	inst.AccountMetaSlice[2] = ag_solanago.Meta(masterEdition).WRITE()
 	return inst
 }
 
-// GetMasterRecordEditionV1Account gets the "masterRecordEditionV1" account.
+// GetMasterEditionAccount gets the "masterEdition" account.
 // Master Record Edition V1 (pda of ['metadata', program id, master metadata mint id, 'edition'])
-func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) GetMasterRecordEditionV1Account() *ag_solanago.AccountMeta {
+func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) GetMasterEditionAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(2)
 }
 
-// SetMintOfNewTokenAccount sets the "mintOfNewToken" account.
+// SetMintAccount sets the "mint" account.
 // Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY
-func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) SetMintOfNewTokenAccount(mintOfNewToken ag_solanago.PublicKey) *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
-	inst.AccountMetaSlice[3] = ag_solanago.Meta(mintOfNewToken).WRITE()
+func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) SetMintAccount(mint ag_solanago.PublicKey) *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
+	inst.AccountMetaSlice[3] = ag_solanago.Meta(mint).WRITE()
 	return inst
 }
 
-// GetMintOfNewTokenAccount gets the "mintOfNewToken" account.
+// GetMintAccount gets the "mint" account.
 // Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY
-func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) GetMintOfNewTokenAccount() *ag_solanago.AccountMeta {
+func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) GetMintAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(3)
 }
 
@@ -151,29 +149,29 @@ func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) GetPrinti
 	return inst.AccountMetaSlice.Get(5)
 }
 
-// SetTokenAccount sets the "tokenAccount" account.
+// SetMasterTokenAccountAccount sets the "masterTokenAccount" account.
 // Token account containing Printing mint token to be transferred
-func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) SetTokenAccount(tokenAccount ag_solanago.PublicKey) *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
-	inst.AccountMetaSlice[6] = ag_solanago.Meta(tokenAccount).WRITE()
+func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) SetMasterTokenAccountAccount(masterTokenAccount ag_solanago.PublicKey) *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
+	inst.AccountMetaSlice[6] = ag_solanago.Meta(masterTokenAccount).WRITE()
 	return inst
 }
 
-// GetTokenAccount gets the "tokenAccount" account.
+// GetMasterTokenAccountAccount gets the "masterTokenAccount" account.
 // Token account containing Printing mint token to be transferred
-func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) GetTokenAccount() *ag_solanago.AccountMeta {
+func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) GetMasterTokenAccountAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(6)
 }
 
-// SetEditionPDAAccount sets the "editionPDA" account.
+// SetEditionMarkerAccount sets the "editionMarker" account.
 // Edition pda to mark creation - will be checked for pre-existence. (pda of ['metadata', program id, master mint id, edition_number])
-func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) SetEditionPDAAccount(editionPDA ag_solanago.PublicKey) *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
-	inst.AccountMetaSlice[7] = ag_solanago.Meta(editionPDA).WRITE()
+func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) SetEditionMarkerAccount(editionMarker ag_solanago.PublicKey) *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
+	inst.AccountMetaSlice[7] = ag_solanago.Meta(editionMarker).WRITE()
 	return inst
 }
 
-// GetEditionPDAAccount gets the "editionPDA" account.
+// GetEditionMarkerAccount gets the "editionMarker" account.
 // Edition pda to mark creation - will be checked for pre-existence. (pda of ['metadata', program id, master mint id, edition_number])
-func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) GetEditionPDAAccount() *ag_solanago.AccountMeta {
+func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) GetEditionMarkerAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(7)
 }
 
@@ -203,29 +201,29 @@ func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) GetPayerA
 	return inst.AccountMetaSlice.Get(9)
 }
 
-// SetUpdateAuthorityAccount sets the "updateAuthority" account.
+// SetMasterUpdateAuthorityAccount sets the "masterUpdateAuthority" account.
 // update authority info for new metadata account
-func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) SetUpdateAuthorityAccount(updateAuthority ag_solanago.PublicKey) *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
-	inst.AccountMetaSlice[10] = ag_solanago.Meta(updateAuthority)
+func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) SetMasterUpdateAuthorityAccount(masterUpdateAuthority ag_solanago.PublicKey) *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
+	inst.AccountMetaSlice[10] = ag_solanago.Meta(masterUpdateAuthority)
 	return inst
 }
 
-// GetUpdateAuthorityAccount gets the "updateAuthority" account.
+// GetMasterUpdateAuthorityAccount gets the "masterUpdateAuthority" account.
 // update authority info for new metadata account
-func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) GetUpdateAuthorityAccount() *ag_solanago.AccountMeta {
+func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) GetMasterUpdateAuthorityAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(10)
 }
 
-// SetMasterRecordMetadataAccount sets the "masterRecordMetadata" account.
+// SetMasterMetadataAccount sets the "masterMetadata" account.
 // Master record metadata account
-func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) SetMasterRecordMetadataAccount(masterRecordMetadata ag_solanago.PublicKey) *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
-	inst.AccountMetaSlice[11] = ag_solanago.Meta(masterRecordMetadata)
+func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) SetMasterMetadataAccount(masterMetadata ag_solanago.PublicKey) *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
+	inst.AccountMetaSlice[11] = ag_solanago.Meta(masterMetadata)
 	return inst
 }
 
-// GetMasterRecordMetadataAccount gets the "masterRecordMetadata" account.
+// GetMasterMetadataAccount gets the "masterMetadata" account.
 // Master record metadata account
-func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) GetMasterRecordMetadataAccount() *ag_solanago.AccountMeta {
+func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) GetMasterMetadataAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(11)
 }
 
@@ -242,16 +240,16 @@ func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) GetTokenP
 	return inst.AccountMetaSlice.Get(12)
 }
 
-// SetSystemAccount sets the "system" account.
+// SetSystemProgramAccount sets the "systemProgram" account.
 // System program
-func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) SetSystemAccount(system ag_solanago.PublicKey) *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
-	inst.AccountMetaSlice[13] = ag_solanago.Meta(system)
+func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) SetSystemProgramAccount(systemProgram ag_solanago.PublicKey) *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
+	inst.AccountMetaSlice[13] = ag_solanago.Meta(systemProgram)
 	return inst
 }
 
-// GetSystemAccount gets the "system" account.
+// GetSystemProgramAccount gets the "systemProgram" account.
 // System program
-func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) GetSystemAccount() *ag_solanago.AccountMeta {
+func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) GetSystemProgramAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(13)
 }
 
@@ -269,16 +267,14 @@ func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) GetRentAc
 }
 
 // SetReservationListAccount sets the "reservationList" account.
-// [optional] Reservation List - If present, and you are on this list, you can get
-// an edition number given by your position on the list.
+// Reservation List - If present, and you are on this list, you can get an edition number given by your position on the list.
 func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) SetReservationListAccount(reservationList ag_solanago.PublicKey) *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
 	inst.AccountMetaSlice[15] = ag_solanago.Meta(reservationList).WRITE()
 	return inst
 }
 
 // GetReservationListAccount gets the "reservationList" account (optional).
-// [optional] Reservation List - If present, and you are on this list, you can get
-// an edition number given by your position on the list.
+// Reservation List - If present, and you are on this list, you can get an edition number given by your position on the list.
 func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) GetReservationListAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(15)
 }
@@ -304,16 +300,16 @@ func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) Validate(
 	// Check whether all (required) accounts are set:
 	{
 		if inst.AccountMetaSlice[0] == nil {
-			return errors.New("accounts.NewMetadataKey is not set")
+			return errors.New("accounts.Metadata is not set")
 		}
 		if inst.AccountMetaSlice[1] == nil {
-			return errors.New("accounts.NewEditionV1 is not set")
+			return errors.New("accounts.Edition is not set")
 		}
 		if inst.AccountMetaSlice[2] == nil {
-			return errors.New("accounts.MasterRecordEditionV1 is not set")
+			return errors.New("accounts.MasterEdition is not set")
 		}
 		if inst.AccountMetaSlice[3] == nil {
-			return errors.New("accounts.MintOfNewToken is not set")
+			return errors.New("accounts.Mint is not set")
 		}
 		if inst.AccountMetaSlice[4] == nil {
 			return errors.New("accounts.MintAuthority is not set")
@@ -322,10 +318,10 @@ func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) Validate(
 			return errors.New("accounts.PrintingMint is not set")
 		}
 		if inst.AccountMetaSlice[6] == nil {
-			return errors.New("accounts.TokenAccount is not set")
+			return errors.New("accounts.MasterTokenAccount is not set")
 		}
 		if inst.AccountMetaSlice[7] == nil {
-			return errors.New("accounts.EditionPDA is not set")
+			return errors.New("accounts.EditionMarker is not set")
 		}
 		if inst.AccountMetaSlice[8] == nil {
 			return errors.New("accounts.BurnAuthority is not set")
@@ -334,16 +330,16 @@ func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) Validate(
 			return errors.New("accounts.Payer is not set")
 		}
 		if inst.AccountMetaSlice[10] == nil {
-			return errors.New("accounts.UpdateAuthority is not set")
+			return errors.New("accounts.MasterUpdateAuthority is not set")
 		}
 		if inst.AccountMetaSlice[11] == nil {
-			return errors.New("accounts.MasterRecordMetadata is not set")
+			return errors.New("accounts.MasterMetadata is not set")
 		}
 		if inst.AccountMetaSlice[12] == nil {
 			return errors.New("accounts.TokenProgram is not set")
 		}
 		if inst.AccountMetaSlice[13] == nil {
-			return errors.New("accounts.System is not set")
+			return errors.New("accounts.SystemProgram is not set")
 		}
 		if inst.AccountMetaSlice[14] == nil {
 			return errors.New("accounts.Rent is not set")
@@ -368,20 +364,20 @@ func (inst *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) EncodeToT
 
 					// Accounts of the instruction:
 					instructionBranch.Child("Accounts[len=16]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
-						accountsBranch.Child(ag_format.Meta("       newMetadataKey", inst.AccountMetaSlice.Get(0)))
-						accountsBranch.Child(ag_format.Meta("         newEditionV1", inst.AccountMetaSlice.Get(1)))
-						accountsBranch.Child(ag_format.Meta("masterRecordEditionV1", inst.AccountMetaSlice.Get(2)))
-						accountsBranch.Child(ag_format.Meta("       mintOfNewToken", inst.AccountMetaSlice.Get(3)))
+						accountsBranch.Child(ag_format.Meta("             metadata", inst.AccountMetaSlice.Get(0)))
+						accountsBranch.Child(ag_format.Meta("              edition", inst.AccountMetaSlice.Get(1)))
+						accountsBranch.Child(ag_format.Meta("        masterEdition", inst.AccountMetaSlice.Get(2)))
+						accountsBranch.Child(ag_format.Meta("                 mint", inst.AccountMetaSlice.Get(3)))
 						accountsBranch.Child(ag_format.Meta("        mintAuthority", inst.AccountMetaSlice.Get(4)))
 						accountsBranch.Child(ag_format.Meta("         printingMint", inst.AccountMetaSlice.Get(5)))
-						accountsBranch.Child(ag_format.Meta("                token", inst.AccountMetaSlice.Get(6)))
-						accountsBranch.Child(ag_format.Meta("           editionPDA", inst.AccountMetaSlice.Get(7)))
+						accountsBranch.Child(ag_format.Meta("          masterToken", inst.AccountMetaSlice.Get(6)))
+						accountsBranch.Child(ag_format.Meta("        editionMarker", inst.AccountMetaSlice.Get(7)))
 						accountsBranch.Child(ag_format.Meta("        burnAuthority", inst.AccountMetaSlice.Get(8)))
 						accountsBranch.Child(ag_format.Meta("                payer", inst.AccountMetaSlice.Get(9)))
-						accountsBranch.Child(ag_format.Meta("      updateAuthority", inst.AccountMetaSlice.Get(10)))
-						accountsBranch.Child(ag_format.Meta(" masterRecordMetadata", inst.AccountMetaSlice.Get(11)))
+						accountsBranch.Child(ag_format.Meta("masterUpdateAuthority", inst.AccountMetaSlice.Get(10)))
+						accountsBranch.Child(ag_format.Meta("       masterMetadata", inst.AccountMetaSlice.Get(11)))
 						accountsBranch.Child(ag_format.Meta("         tokenProgram", inst.AccountMetaSlice.Get(12)))
-						accountsBranch.Child(ag_format.Meta("               system", inst.AccountMetaSlice.Get(13)))
+						accountsBranch.Child(ag_format.Meta("        systemProgram", inst.AccountMetaSlice.Get(13)))
 						accountsBranch.Child(ag_format.Meta("                 rent", inst.AccountMetaSlice.Get(14)))
 						accountsBranch.Child(ag_format.Meta("      reservationList", inst.AccountMetaSlice.Get(15)))
 					})
@@ -399,37 +395,37 @@ func (obj *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken) UnmarshalW
 // NewDeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstruction declares a new DeprecatedMintNewEditionFromMasterEditionViaPrintingToken instruction with the provided parameters and accounts.
 func NewDeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstruction(
 	// Accounts:
-	newMetadataKey ag_solanago.PublicKey,
-	newEditionV1 ag_solanago.PublicKey,
-	masterRecordEditionV1 ag_solanago.PublicKey,
-	mintOfNewToken ag_solanago.PublicKey,
+	metadata ag_solanago.PublicKey,
+	edition ag_solanago.PublicKey,
+	masterEdition ag_solanago.PublicKey,
+	mint ag_solanago.PublicKey,
 	mintAuthority ag_solanago.PublicKey,
 	printingMint ag_solanago.PublicKey,
-	tokenAccount ag_solanago.PublicKey,
-	editionPDA ag_solanago.PublicKey,
+	masterTokenAccount ag_solanago.PublicKey,
+	editionMarker ag_solanago.PublicKey,
 	burnAuthority ag_solanago.PublicKey,
 	payer ag_solanago.PublicKey,
-	updateAuthority ag_solanago.PublicKey,
-	masterRecordMetadata ag_solanago.PublicKey,
+	masterUpdateAuthority ag_solanago.PublicKey,
+	masterMetadata ag_solanago.PublicKey,
 	tokenProgram ag_solanago.PublicKey,
-	system ag_solanago.PublicKey,
+	systemProgram ag_solanago.PublicKey,
 	rent ag_solanago.PublicKey,
 	reservationList ag_solanago.PublicKey) *DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
 	return NewDeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionBuilder().
-		SetNewMetadataKeyAccount(newMetadataKey).
-		SetNewEditionV1Account(newEditionV1).
-		SetMasterRecordEditionV1Account(masterRecordEditionV1).
-		SetMintOfNewTokenAccount(mintOfNewToken).
+		SetMetadataAccount(metadata).
+		SetEditionAccount(edition).
+		SetMasterEditionAccount(masterEdition).
+		SetMintAccount(mint).
 		SetMintAuthorityAccount(mintAuthority).
 		SetPrintingMintAccount(printingMint).
-		SetTokenAccount(tokenAccount).
-		SetEditionPDAAccount(editionPDA).
+		SetMasterTokenAccountAccount(masterTokenAccount).
+		SetEditionMarkerAccount(editionMarker).
 		SetBurnAuthorityAccount(burnAuthority).
 		SetPayerAccount(payer).
-		SetUpdateAuthorityAccount(updateAuthority).
-		SetMasterRecordMetadataAccount(masterRecordMetadata).
+		SetMasterUpdateAuthorityAccount(masterUpdateAuthority).
+		SetMasterMetadataAccount(masterMetadata).
 		SetTokenProgramAccount(tokenProgram).
-		SetSystemAccount(system).
+		SetSystemProgramAccount(systemProgram).
 		SetRentAccount(rent).
 		SetReservationListAccount(reservationList)
 }

@@ -3,19 +3,127 @@
 package token_metadata
 
 import (
+	"fmt"
 	ag_binary "github.com/gagliardetto/binary"
 	ag_solanago "github.com/gagliardetto/solana-go"
 )
 
-type CreateMetadataAccountArgs struct {
-	// Note that unique metadatas are disabled for now.
-	Data Data
-
-	// Whether you want your metadata to be updateable in the future.
-	IsMutable bool
+type SetCollectionSizeArgs struct {
+	Size uint64
 }
 
-func (obj CreateMetadataAccountArgs) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+func (obj SetCollectionSizeArgs) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Size` param:
+	err = encoder.Encode(obj.Size)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (obj *SetCollectionSizeArgs) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Size`:
+	err = decoder.Decode(&obj.Size)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type CreateMasterEditionArgs struct {
+	MaxSupply *uint64 `bin:"optional"`
+}
+
+func (obj CreateMasterEditionArgs) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `MaxSupply` param (optional):
+	{
+		if obj.MaxSupply == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.MaxSupply)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *CreateMasterEditionArgs) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `MaxSupply` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.MaxSupply)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+type MintNewEditionFromMasterEditionViaTokenArgs struct {
+	Edition uint64
+}
+
+func (obj MintNewEditionFromMasterEditionViaTokenArgs) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Edition` param:
+	err = encoder.Encode(obj.Edition)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (obj *MintNewEditionFromMasterEditionViaTokenArgs) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Edition`:
+	err = decoder.Decode(&obj.Edition)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type TransferOutOfEscrowArgs struct {
+	Amount uint64
+}
+
+func (obj TransferOutOfEscrowArgs) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Amount` param:
+	err = encoder.Encode(obj.Amount)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (obj *TransferOutOfEscrowArgs) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Amount`:
+	err = decoder.Decode(&obj.Amount)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type CreateMetadataAccountArgsV3 struct {
+	Data              DataV2
+	IsMutable         bool
+	CollectionDetails *CollectionDetails `bin:"optional"`
+}
+
+func (obj CreateMetadataAccountArgsV3) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
 	// Serialize `Data` param:
 	err = encoder.Encode(obj.Data)
 	if err != nil {
@@ -26,10 +134,28 @@ func (obj CreateMetadataAccountArgs) MarshalWithEncoder(encoder *ag_binary.Encod
 	if err != nil {
 		return err
 	}
+	// Serialize `CollectionDetails` param (optional):
+	{
+		if obj.CollectionDetails == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.CollectionDetails)
+			if err != nil {
+				return err
+			}
+		}
+	}
 	return nil
 }
 
-func (obj *CreateMetadataAccountArgs) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+func (obj *CreateMetadataAccountArgsV3) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
 	// Deserialize `Data`:
 	err = decoder.Decode(&obj.Data)
 	if err != nil {
@@ -40,188 +166,14 @@ func (obj *CreateMetadataAccountArgs) UnmarshalWithDecoder(decoder *ag_binary.De
 	if err != nil {
 		return err
 	}
-	return nil
-}
-
-type CreateMetadataAccountArgsV2 struct {
-	// Note that unique metadatas are disabled for now.
-	Data DataV2
-
-	// Whether you want your metadata to be updateable in the future.
-	IsMutable bool
-}
-
-func (obj CreateMetadataAccountArgsV2) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
-	// Serialize `Data` param:
-	err = encoder.Encode(obj.Data)
-	if err != nil {
-		return err
-	}
-	// Serialize `IsMutable` param:
-	err = encoder.Encode(obj.IsMutable)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (obj *CreateMetadataAccountArgsV2) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
-	// Deserialize `Data`:
-	err = decoder.Decode(&obj.Data)
-	if err != nil {
-		return err
-	}
-	// Deserialize `IsMutable`:
-	err = decoder.Decode(&obj.IsMutable)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-type UtilizeArgs struct {
-	NumberOfUses uint64
-}
-
-func (obj UtilizeArgs) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
-	// Serialize `NumberOfUses` param:
-	err = encoder.Encode(obj.NumberOfUses)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (obj *UtilizeArgs) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
-	// Deserialize `NumberOfUses`:
-	err = decoder.Decode(&obj.NumberOfUses)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-type ApproveUseAuthorityArgs struct {
-	NumberOfUses uint64
-}
-
-func (obj ApproveUseAuthorityArgs) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
-	// Serialize `NumberOfUses` param:
-	err = encoder.Encode(obj.NumberOfUses)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (obj *ApproveUseAuthorityArgs) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
-	// Deserialize `NumberOfUses`:
-	err = decoder.Decode(&obj.NumberOfUses)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-type UpdateMetadataAccountArgs struct {
-	Data                *Data                  `bin:"optional"`
-	UpdateAuthority     *ag_solanago.PublicKey `bin:"optional"`
-	PrimarySaleHappened *bool                  `bin:"optional"`
-}
-
-func (obj UpdateMetadataAccountArgs) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
-	// Serialize `Data` param (optional):
-	{
-		if obj.Data == nil {
-			err = encoder.WriteBool(false)
-			if err != nil {
-				return err
-			}
-		} else {
-			err = encoder.WriteBool(true)
-			if err != nil {
-				return err
-			}
-			err = encoder.Encode(obj.Data)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	// Serialize `UpdateAuthority` param (optional):
-	{
-		if obj.UpdateAuthority == nil {
-			err = encoder.WriteBool(false)
-			if err != nil {
-				return err
-			}
-		} else {
-			err = encoder.WriteBool(true)
-			if err != nil {
-				return err
-			}
-			err = encoder.Encode(obj.UpdateAuthority)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	// Serialize `PrimarySaleHappened` param (optional):
-	{
-		if obj.PrimarySaleHappened == nil {
-			err = encoder.WriteBool(false)
-			if err != nil {
-				return err
-			}
-		} else {
-			err = encoder.WriteBool(true)
-			if err != nil {
-				return err
-			}
-			err = encoder.Encode(obj.PrimarySaleHappened)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
-func (obj *UpdateMetadataAccountArgs) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
-	// Deserialize `Data` (optional):
+	// Deserialize `CollectionDetails` (optional):
 	{
 		ok, err := decoder.ReadBool()
 		if err != nil {
 			return err
 		}
 		if ok {
-			err = decoder.Decode(&obj.Data)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	// Deserialize `UpdateAuthority` (optional):
-	{
-		ok, err := decoder.ReadBool()
-		if err != nil {
-			return err
-		}
-		if ok {
-			err = decoder.Decode(&obj.UpdateAuthority)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	// Deserialize `PrimarySaleHappened` (optional):
-	{
-		ok, err := decoder.ReadBool()
-		if err != nil {
-			return err
-		}
-		if ok {
-			err = decoder.Decode(&obj.PrimarySaleHappened)
+			err = decoder.Decode(&obj.CollectionDetails)
 			if err != nil {
 				return err
 			}
@@ -369,15 +321,111 @@ func (obj *UpdateMetadataAccountArgsV2) UnmarshalWithDecoder(decoder *ag_binary.
 	return nil
 }
 
-type CreateMasterEditionArgs struct {
-	// If set, means that no more than this number of editions can ever be minted. This is immutable.
-	MaxSupply *uint64 `bin:"optional"`
+type ApproveUseAuthorityArgs struct {
+	NumberOfUses uint64
 }
 
-func (obj CreateMasterEditionArgs) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
-	// Serialize `MaxSupply` param (optional):
+func (obj ApproveUseAuthorityArgs) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `NumberOfUses` param:
+	err = encoder.Encode(obj.NumberOfUses)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (obj *ApproveUseAuthorityArgs) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `NumberOfUses`:
+	err = decoder.Decode(&obj.NumberOfUses)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type UtilizeArgs struct {
+	NumberOfUses uint64
+}
+
+func (obj UtilizeArgs) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `NumberOfUses` param:
+	err = encoder.Encode(obj.NumberOfUses)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (obj *UtilizeArgs) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `NumberOfUses`:
+	err = decoder.Decode(&obj.NumberOfUses)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type AuthorizationData struct {
+	Payload Payload
+}
+
+func (obj AuthorizationData) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Payload` param:
+	err = encoder.Encode(obj.Payload)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (obj *AuthorizationData) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Payload`:
+	err = decoder.Decode(&obj.Payload)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type AssetData struct {
+	Name                 string
+	Symbol               string
+	Uri                  string
+	SellerFeeBasisPoints uint16
+	Creators             *[]Creator `bin:"optional"`
+	PrimarySaleHappened  bool
+	IsMutable            bool
+	TokenStandard        TokenStandard
+	Collection           *Collection            `bin:"optional"`
+	Uses                 *Uses                  `bin:"optional"`
+	CollectionDetails    *CollectionDetails     `bin:"optional"`
+	RuleSet              *ag_solanago.PublicKey `bin:"optional"`
+}
+
+func (obj AssetData) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Name` param:
+	err = encoder.Encode(obj.Name)
+	if err != nil {
+		return err
+	}
+	// Serialize `Symbol` param:
+	err = encoder.Encode(obj.Symbol)
+	if err != nil {
+		return err
+	}
+	// Serialize `Uri` param:
+	err = encoder.Encode(obj.Uri)
+	if err != nil {
+		return err
+	}
+	// Serialize `SellerFeeBasisPoints` param:
+	err = encoder.Encode(obj.SellerFeeBasisPoints)
+	if err != nil {
+		return err
+	}
+	// Serialize `Creators` param (optional):
 	{
-		if obj.MaxSupply == nil {
+		if obj.Creators == nil {
 			err = encoder.WriteBool(false)
 			if err != nil {
 				return err
@@ -387,58 +435,30 @@ func (obj CreateMasterEditionArgs) MarshalWithEncoder(encoder *ag_binary.Encoder
 			if err != nil {
 				return err
 			}
-			err = encoder.Encode(obj.MaxSupply)
+			err = encoder.Encode(obj.Creators)
 			if err != nil {
 				return err
 			}
 		}
 	}
-	return nil
-}
-
-func (obj *CreateMasterEditionArgs) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
-	// Deserialize `MaxSupply` (optional):
-	{
-		ok, err := decoder.ReadBool()
-		if err != nil {
-			return err
-		}
-		if ok {
-			err = decoder.Decode(&obj.MaxSupply)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
-type SetReservationListArgs struct {
-	// If set, means that no more than this number of editions can ever be minted. This is immutable.
-	Reservations []Reservation
-
-	// should only be present on the very first call to set reservation list.
-	TotalReservationSpots *uint64 `bin:"optional"`
-
-	// Where in the reservation list you want to insert this slice of reservations
-	Offset uint64
-
-	// What the total spot offset is in the reservation list from the beginning to your slice of reservations.
-	// So if is going to be 4 total editions eventually reserved between your slice and the beginning of the array,
-	// split between 2 reservation entries, the offset variable above would be "2" since you start at entry 2 in 0 indexed array
-	// (first 2 taking 0 and 1) and because they each have 2 spots taken, this variable would be 4.
-	TotalSpotOffset uint64
-}
-
-func (obj SetReservationListArgs) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
-	// Serialize `Reservations` param:
-	err = encoder.Encode(obj.Reservations)
+	// Serialize `PrimarySaleHappened` param:
+	err = encoder.Encode(obj.PrimarySaleHappened)
 	if err != nil {
 		return err
 	}
-	// Serialize `TotalReservationSpots` param (optional):
+	// Serialize `IsMutable` param:
+	err = encoder.Encode(obj.IsMutable)
+	if err != nil {
+		return err
+	}
+	// Serialize `TokenStandard` param:
+	err = encoder.Encode(obj.TokenStandard)
+	if err != nil {
+		return err
+	}
+	// Serialize `Collection` param (optional):
 	{
-		if obj.TotalReservationSpots == nil {
+		if obj.Collection == nil {
 			err = encoder.WriteBool(false)
 			if err != nil {
 				return err
@@ -448,84 +468,3288 @@ func (obj SetReservationListArgs) MarshalWithEncoder(encoder *ag_binary.Encoder)
 			if err != nil {
 				return err
 			}
-			err = encoder.Encode(obj.TotalReservationSpots)
+			err = encoder.Encode(obj.Collection)
 			if err != nil {
 				return err
 			}
 		}
 	}
-	// Serialize `Offset` param:
-	err = encoder.Encode(obj.Offset)
-	if err != nil {
-		return err
+	// Serialize `Uses` param (optional):
+	{
+		if obj.Uses == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.Uses)
+			if err != nil {
+				return err
+			}
+		}
 	}
-	// Serialize `TotalSpotOffset` param:
-	err = encoder.Encode(obj.TotalSpotOffset)
-	if err != nil {
-		return err
+	// Serialize `CollectionDetails` param (optional):
+	{
+		if obj.CollectionDetails == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.CollectionDetails)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Serialize `RuleSet` param (optional):
+	{
+		if obj.RuleSet == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.RuleSet)
+			if err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }
 
-func (obj *SetReservationListArgs) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
-	// Deserialize `Reservations`:
-	err = decoder.Decode(&obj.Reservations)
+func (obj *AssetData) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Name`:
+	err = decoder.Decode(&obj.Name)
 	if err != nil {
 		return err
 	}
-	// Deserialize `TotalReservationSpots` (optional):
+	// Deserialize `Symbol`:
+	err = decoder.Decode(&obj.Symbol)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Uri`:
+	err = decoder.Decode(&obj.Uri)
+	if err != nil {
+		return err
+	}
+	// Deserialize `SellerFeeBasisPoints`:
+	err = decoder.Decode(&obj.SellerFeeBasisPoints)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Creators` (optional):
 	{
 		ok, err := decoder.ReadBool()
 		if err != nil {
 			return err
 		}
 		if ok {
-			err = decoder.Decode(&obj.TotalReservationSpots)
+			err = decoder.Decode(&obj.Creators)
 			if err != nil {
 				return err
 			}
 		}
 	}
-	// Deserialize `Offset`:
-	err = decoder.Decode(&obj.Offset)
+	// Deserialize `PrimarySaleHappened`:
+	err = decoder.Decode(&obj.PrimarySaleHappened)
 	if err != nil {
 		return err
 	}
-	// Deserialize `TotalSpotOffset`:
-	err = decoder.Decode(&obj.TotalSpotOffset)
+	// Deserialize `IsMutable`:
+	err = decoder.Decode(&obj.IsMutable)
+	if err != nil {
+		return err
+	}
+	// Deserialize `TokenStandard`:
+	err = decoder.Decode(&obj.TokenStandard)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Collection` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.Collection)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Deserialize `Uses` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.Uses)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Deserialize `CollectionDetails` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.CollectionDetails)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Deserialize `RuleSet` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.RuleSet)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+type Collection struct {
+	Verified bool
+	Key      ag_solanago.PublicKey
+}
+
+func (obj Collection) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Verified` param:
+	err = encoder.Encode(obj.Verified)
+	if err != nil {
+		return err
+	}
+	// Serialize `Key` param:
+	err = encoder.Encode(obj.Key)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-type MintPrintingTokensViaTokenArgs struct {
-	Supply uint64
-}
-
-func (obj MintPrintingTokensViaTokenArgs) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
-	// Serialize `Supply` param:
-	err = encoder.Encode(obj.Supply)
+func (obj *Collection) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Verified`:
+	err = decoder.Decode(&obj.Verified)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Key`:
+	err = decoder.Decode(&obj.Key)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (obj *MintPrintingTokensViaTokenArgs) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
-	// Deserialize `Supply`:
-	err = decoder.Decode(&obj.Supply)
+type Creator struct {
+	Address  ag_solanago.PublicKey
+	Verified bool
+	Share    uint8
+}
+
+func (obj Creator) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Address` param:
+	err = encoder.Encode(obj.Address)
+	if err != nil {
+		return err
+	}
+	// Serialize `Verified` param:
+	err = encoder.Encode(obj.Verified)
+	if err != nil {
+		return err
+	}
+	// Serialize `Share` param:
+	err = encoder.Encode(obj.Share)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-type MintNewEditionFromMasterEditionViaTokenArgs struct {
+func (obj *Creator) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Address`:
+	err = decoder.Decode(&obj.Address)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Verified`:
+	err = decoder.Decode(&obj.Verified)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Share`:
+	err = decoder.Decode(&obj.Share)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type Data struct {
+	Name                 string
+	Symbol               string
+	Uri                  string
+	SellerFeeBasisPoints uint16
+	Creators             *[]Creator `bin:"optional"`
+}
+
+func (obj Data) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Name` param:
+	err = encoder.Encode(obj.Name)
+	if err != nil {
+		return err
+	}
+	// Serialize `Symbol` param:
+	err = encoder.Encode(obj.Symbol)
+	if err != nil {
+		return err
+	}
+	// Serialize `Uri` param:
+	err = encoder.Encode(obj.Uri)
+	if err != nil {
+		return err
+	}
+	// Serialize `SellerFeeBasisPoints` param:
+	err = encoder.Encode(obj.SellerFeeBasisPoints)
+	if err != nil {
+		return err
+	}
+	// Serialize `Creators` param (optional):
+	{
+		if obj.Creators == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.Creators)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *Data) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Name`:
+	err = decoder.Decode(&obj.Name)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Symbol`:
+	err = decoder.Decode(&obj.Symbol)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Uri`:
+	err = decoder.Decode(&obj.Uri)
+	if err != nil {
+		return err
+	}
+	// Deserialize `SellerFeeBasisPoints`:
+	err = decoder.Decode(&obj.SellerFeeBasisPoints)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Creators` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.Creators)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+type DataV2 struct {
+	Name                 string
+	Symbol               string
+	Uri                  string
+	SellerFeeBasisPoints uint16
+	Creators             *[]Creator  `bin:"optional"`
+	Collection           *Collection `bin:"optional"`
+	Uses                 *Uses       `bin:"optional"`
+}
+
+func (obj DataV2) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Name` param:
+	err = encoder.Encode(obj.Name)
+	if err != nil {
+		return err
+	}
+	// Serialize `Symbol` param:
+	err = encoder.Encode(obj.Symbol)
+	if err != nil {
+		return err
+	}
+	// Serialize `Uri` param:
+	err = encoder.Encode(obj.Uri)
+	if err != nil {
+		return err
+	}
+	// Serialize `SellerFeeBasisPoints` param:
+	err = encoder.Encode(obj.SellerFeeBasisPoints)
+	if err != nil {
+		return err
+	}
+	// Serialize `Creators` param (optional):
+	{
+		if obj.Creators == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.Creators)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Serialize `Collection` param (optional):
+	{
+		if obj.Collection == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.Collection)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Serialize `Uses` param (optional):
+	{
+		if obj.Uses == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.Uses)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *DataV2) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Name`:
+	err = decoder.Decode(&obj.Name)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Symbol`:
+	err = decoder.Decode(&obj.Symbol)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Uri`:
+	err = decoder.Decode(&obj.Uri)
+	if err != nil {
+		return err
+	}
+	// Deserialize `SellerFeeBasisPoints`:
+	err = decoder.Decode(&obj.SellerFeeBasisPoints)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Creators` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.Creators)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Deserialize `Collection` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.Collection)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Deserialize `Uses` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.Uses)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+type Reservation struct {
+	Address        ag_solanago.PublicKey
+	SpotsRemaining uint64
+	TotalSpots     uint64
+}
+
+func (obj Reservation) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Address` param:
+	err = encoder.Encode(obj.Address)
+	if err != nil {
+		return err
+	}
+	// Serialize `SpotsRemaining` param:
+	err = encoder.Encode(obj.SpotsRemaining)
+	if err != nil {
+		return err
+	}
+	// Serialize `TotalSpots` param:
+	err = encoder.Encode(obj.TotalSpots)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (obj *Reservation) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Address`:
+	err = decoder.Decode(&obj.Address)
+	if err != nil {
+		return err
+	}
+	// Deserialize `SpotsRemaining`:
+	err = decoder.Decode(&obj.SpotsRemaining)
+	if err != nil {
+		return err
+	}
+	// Deserialize `TotalSpots`:
+	err = decoder.Decode(&obj.TotalSpots)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type ReservationV1 struct {
+	Address        ag_solanago.PublicKey
+	SpotsRemaining uint8
+	TotalSpots     uint8
+}
+
+func (obj ReservationV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Address` param:
+	err = encoder.Encode(obj.Address)
+	if err != nil {
+		return err
+	}
+	// Serialize `SpotsRemaining` param:
+	err = encoder.Encode(obj.SpotsRemaining)
+	if err != nil {
+		return err
+	}
+	// Serialize `TotalSpots` param:
+	err = encoder.Encode(obj.TotalSpots)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (obj *ReservationV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Address`:
+	err = decoder.Decode(&obj.Address)
+	if err != nil {
+		return err
+	}
+	// Deserialize `SpotsRemaining`:
+	err = decoder.Decode(&obj.SpotsRemaining)
+	if err != nil {
+		return err
+	}
+	// Deserialize `TotalSpots`:
+	err = decoder.Decode(&obj.TotalSpots)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type SeedsVec struct {
+	Seeds [][]byte
+}
+
+func (obj SeedsVec) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Seeds` param:
+	err = encoder.Encode(obj.Seeds)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (obj *SeedsVec) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Seeds`:
+	err = decoder.Decode(&obj.Seeds)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type ProofInfo struct {
+	Proof [][32]uint8
+}
+
+func (obj ProofInfo) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Proof` param:
+	err = encoder.Encode(obj.Proof)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (obj *ProofInfo) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Proof`:
+	err = decoder.Decode(&obj.Proof)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type Payload struct {
+	Map map[string]PayloadType
+}
+
+func (obj Payload) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Map` param:
+	err = encoder.Encode(obj.Map)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (obj *Payload) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Map`:
+	err = decoder.Decode(&obj.Map)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type Uses struct {
+	UseMethod UseMethod
+	Remaining uint64
+	Total     uint64
+}
+
+func (obj Uses) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `UseMethod` param:
+	err = encoder.Encode(obj.UseMethod)
+	if err != nil {
+		return err
+	}
+	// Serialize `Remaining` param:
+	err = encoder.Encode(obj.Remaining)
+	if err != nil {
+		return err
+	}
+	// Serialize `Total` param:
+	err = encoder.Encode(obj.Total)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (obj *Uses) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `UseMethod`:
+	err = decoder.Decode(&obj.UseMethod)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Remaining`:
+	err = decoder.Decode(&obj.Remaining)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Total`:
+	err = decoder.Decode(&obj.Total)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type BurnArgs interface {
+	isBurnArgs()
+}
+
+type burnArgsContainer struct {
+	Enum ag_binary.BorshEnum `borsh_enum:"true"`
+	V1   BurnArgsV1
+}
+
+type BurnArgsV1 struct {
+	Amount uint64
+}
+
+func (obj BurnArgsV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Amount` param:
+	err = encoder.Encode(obj.Amount)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (obj *BurnArgsV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Amount`:
+	err = decoder.Decode(&obj.Amount)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (_ *BurnArgsV1) isBurnArgs() {}
+
+type DelegateArgs interface {
+	isDelegateArgs()
+}
+
+type delegateArgsContainer struct {
+	Enum                     ag_binary.BorshEnum `borsh_enum:"true"`
+	CollectionV1             DelegateArgsCollectionV1
+	SaleV1                   DelegateArgsSaleV1
+	TransferV1               DelegateArgsTransferV1
+	DataV1                   DelegateArgsDataV1
+	UtilityV1                DelegateArgsUtilityV1
+	StakingV1                DelegateArgsStakingV1
+	StandardV1               DelegateArgsStandardV1
+	LockedTransferV1         DelegateArgsLockedTransferV1
+	ProgrammableConfigV1     DelegateArgsProgrammableConfigV1
+	AuthorityItemV1          DelegateArgsAuthorityItemV1
+	DataItemV1               DelegateArgsDataItemV1
+	CollectionItemV1         DelegateArgsCollectionItemV1
+	ProgrammableConfigItemV1 DelegateArgsProgrammableConfigItemV1
+	PrintDelegateV1          DelegateArgsPrintDelegateV1
+}
+
+type DelegateArgsCollectionV1 struct {
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj DelegateArgsCollectionV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *DelegateArgsCollectionV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *DelegateArgsCollectionV1) isDelegateArgs() {}
+
+type DelegateArgsSaleV1 struct {
+	Amount            uint64
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj DelegateArgsSaleV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Amount` param:
+	err = encoder.Encode(obj.Amount)
+	if err != nil {
+		return err
+	}
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *DelegateArgsSaleV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Amount`:
+	err = decoder.Decode(&obj.Amount)
+	if err != nil {
+		return err
+	}
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *DelegateArgsSaleV1) isDelegateArgs() {}
+
+type DelegateArgsTransferV1 struct {
+	Amount            uint64
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj DelegateArgsTransferV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Amount` param:
+	err = encoder.Encode(obj.Amount)
+	if err != nil {
+		return err
+	}
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *DelegateArgsTransferV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Amount`:
+	err = decoder.Decode(&obj.Amount)
+	if err != nil {
+		return err
+	}
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *DelegateArgsTransferV1) isDelegateArgs() {}
+
+type DelegateArgsDataV1 struct {
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj DelegateArgsDataV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *DelegateArgsDataV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *DelegateArgsDataV1) isDelegateArgs() {}
+
+type DelegateArgsUtilityV1 struct {
+	Amount            uint64
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj DelegateArgsUtilityV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Amount` param:
+	err = encoder.Encode(obj.Amount)
+	if err != nil {
+		return err
+	}
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *DelegateArgsUtilityV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Amount`:
+	err = decoder.Decode(&obj.Amount)
+	if err != nil {
+		return err
+	}
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *DelegateArgsUtilityV1) isDelegateArgs() {}
+
+type DelegateArgsStakingV1 struct {
+	Amount            uint64
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj DelegateArgsStakingV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Amount` param:
+	err = encoder.Encode(obj.Amount)
+	if err != nil {
+		return err
+	}
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *DelegateArgsStakingV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Amount`:
+	err = decoder.Decode(&obj.Amount)
+	if err != nil {
+		return err
+	}
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *DelegateArgsStakingV1) isDelegateArgs() {}
+
+type DelegateArgsStandardV1 struct {
+	Amount uint64
+}
+
+func (obj DelegateArgsStandardV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Amount` param:
+	err = encoder.Encode(obj.Amount)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (obj *DelegateArgsStandardV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Amount`:
+	err = decoder.Decode(&obj.Amount)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (_ *DelegateArgsStandardV1) isDelegateArgs() {}
+
+type DelegateArgsLockedTransferV1 struct {
+	Amount            uint64
+	LockedAddress     ag_solanago.PublicKey
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj DelegateArgsLockedTransferV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Amount` param:
+	err = encoder.Encode(obj.Amount)
+	if err != nil {
+		return err
+	}
+	// Serialize `LockedAddress` param:
+	err = encoder.Encode(obj.LockedAddress)
+	if err != nil {
+		return err
+	}
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *DelegateArgsLockedTransferV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Amount`:
+	err = decoder.Decode(&obj.Amount)
+	if err != nil {
+		return err
+	}
+	// Deserialize `LockedAddress`:
+	err = decoder.Decode(&obj.LockedAddress)
+	if err != nil {
+		return err
+	}
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *DelegateArgsLockedTransferV1) isDelegateArgs() {}
+
+type DelegateArgsProgrammableConfigV1 struct {
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj DelegateArgsProgrammableConfigV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *DelegateArgsProgrammableConfigV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *DelegateArgsProgrammableConfigV1) isDelegateArgs() {}
+
+type DelegateArgsAuthorityItemV1 struct {
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj DelegateArgsAuthorityItemV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *DelegateArgsAuthorityItemV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *DelegateArgsAuthorityItemV1) isDelegateArgs() {}
+
+type DelegateArgsDataItemV1 struct {
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj DelegateArgsDataItemV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *DelegateArgsDataItemV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *DelegateArgsDataItemV1) isDelegateArgs() {}
+
+type DelegateArgsCollectionItemV1 struct {
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj DelegateArgsCollectionItemV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *DelegateArgsCollectionItemV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *DelegateArgsCollectionItemV1) isDelegateArgs() {}
+
+type DelegateArgsProgrammableConfigItemV1 struct {
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj DelegateArgsProgrammableConfigItemV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *DelegateArgsProgrammableConfigItemV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *DelegateArgsProgrammableConfigItemV1) isDelegateArgs() {}
+
+type DelegateArgsPrintDelegateV1 struct {
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj DelegateArgsPrintDelegateV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *DelegateArgsPrintDelegateV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *DelegateArgsPrintDelegateV1) isDelegateArgs() {}
+
+type RevokeArgs ag_binary.BorshEnum
+
+const (
+	RevokeArgsCollectionV1 RevokeArgs = iota
+	RevokeArgsSaleV1
+	RevokeArgsTransferV1
+	RevokeArgsDataV1
+	RevokeArgsUtilityV1
+	RevokeArgsStakingV1
+	RevokeArgsStandardV1
+	RevokeArgsLockedTransferV1
+	RevokeArgsProgrammableConfigV1
+	RevokeArgsMigrationV1
+	RevokeArgsAuthorityItemV1
+	RevokeArgsDataItemV1
+	RevokeArgsCollectionItemV1
+	RevokeArgsProgrammableConfigItemV1
+	RevokeArgsPrintDelegateV1
+)
+
+func (value RevokeArgs) String() string {
+	switch value {
+	case RevokeArgsCollectionV1:
+		return "CollectionV1"
+	case RevokeArgsSaleV1:
+		return "SaleV1"
+	case RevokeArgsTransferV1:
+		return "TransferV1"
+	case RevokeArgsDataV1:
+		return "DataV1"
+	case RevokeArgsUtilityV1:
+		return "UtilityV1"
+	case RevokeArgsStakingV1:
+		return "StakingV1"
+	case RevokeArgsStandardV1:
+		return "StandardV1"
+	case RevokeArgsLockedTransferV1:
+		return "LockedTransferV1"
+	case RevokeArgsProgrammableConfigV1:
+		return "ProgrammableConfigV1"
+	case RevokeArgsMigrationV1:
+		return "MigrationV1"
+	case RevokeArgsAuthorityItemV1:
+		return "AuthorityItemV1"
+	case RevokeArgsDataItemV1:
+		return "DataItemV1"
+	case RevokeArgsCollectionItemV1:
+		return "CollectionItemV1"
+	case RevokeArgsProgrammableConfigItemV1:
+		return "ProgrammableConfigItemV1"
+	case RevokeArgsPrintDelegateV1:
+		return "PrintDelegateV1"
+	default:
+		return ""
+	}
+}
+
+type MetadataDelegateRole ag_binary.BorshEnum
+
+const (
+	MetadataDelegateRoleAuthorityItem MetadataDelegateRole = iota
+	MetadataDelegateRoleCollection
+	MetadataDelegateRoleUse
+	MetadataDelegateRoleData
+	MetadataDelegateRoleProgrammableConfig
+	MetadataDelegateRoleDataItem
+	MetadataDelegateRoleCollectionItem
+	MetadataDelegateRoleProgrammableConfigItem
+)
+
+func (value MetadataDelegateRole) String() string {
+	switch value {
+	case MetadataDelegateRoleAuthorityItem:
+		return "AuthorityItem"
+	case MetadataDelegateRoleCollection:
+		return "Collection"
+	case MetadataDelegateRoleUse:
+		return "Use"
+	case MetadataDelegateRoleData:
+		return "Data"
+	case MetadataDelegateRoleProgrammableConfig:
+		return "ProgrammableConfig"
+	case MetadataDelegateRoleDataItem:
+		return "DataItem"
+	case MetadataDelegateRoleCollectionItem:
+		return "CollectionItem"
+	case MetadataDelegateRoleProgrammableConfigItem:
+		return "ProgrammableConfigItem"
+	default:
+		return ""
+	}
+}
+
+type HolderDelegateRole ag_binary.BorshEnum
+
+const (
+	HolderDelegateRolePrintDelegate HolderDelegateRole = iota
+)
+
+func (value HolderDelegateRole) String() string {
+	switch value {
+	case HolderDelegateRolePrintDelegate:
+		return "PrintDelegate"
+	default:
+		return ""
+	}
+}
+
+type CreateArgs interface {
+	isCreateArgs()
+}
+
+type createArgsContainer struct {
+	Enum ag_binary.BorshEnum `borsh_enum:"true"`
+	V1   CreateArgsV1
+}
+
+type CreateArgsV1 struct {
+	AssetData   AssetData
+	Decimals    *uint8       `bin:"optional"`
+	PrintSupply *PrintSupply `bin:"optional"`
+}
+
+func (obj CreateArgsV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `AssetData` param:
+	err = encoder.Encode(obj.AssetData)
+	if err != nil {
+		return err
+	}
+	// Serialize `Decimals` param (optional):
+	{
+		if obj.Decimals == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.Decimals)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Serialize `PrintSupply` param (optional):
+	{
+		if obj.PrintSupply == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.PrintSupply)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *CreateArgsV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `AssetData`:
+	err = decoder.Decode(&obj.AssetData)
+	if err != nil {
+		return err
+	}
+	// Deserialize `Decimals` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.Decimals)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Deserialize `PrintSupply` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.PrintSupply)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *CreateArgsV1) isCreateArgs() {}
+
+type MintArgs interface {
+	isMintArgs()
+}
+
+type mintArgsContainer struct {
+	Enum ag_binary.BorshEnum `borsh_enum:"true"`
+	V1   MintArgsV1
+}
+
+type MintArgsV1 struct {
+	Amount            uint64
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj MintArgsV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Amount` param:
+	err = encoder.Encode(obj.Amount)
+	if err != nil {
+		return err
+	}
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *MintArgsV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Amount`:
+	err = decoder.Decode(&obj.Amount)
+	if err != nil {
+		return err
+	}
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *MintArgsV1) isMintArgs() {}
+
+type TransferArgs interface {
+	isTransferArgs()
+}
+
+type transferArgsContainer struct {
+	Enum ag_binary.BorshEnum `borsh_enum:"true"`
+	V1   TransferArgsV1
+}
+
+type TransferArgsV1 struct {
+	Amount            uint64
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj TransferArgsV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Amount` param:
+	err = encoder.Encode(obj.Amount)
+	if err != nil {
+		return err
+	}
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *TransferArgsV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Amount`:
+	err = decoder.Decode(&obj.Amount)
+	if err != nil {
+		return err
+	}
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *TransferArgsV1) isTransferArgs() {}
+
+type UpdateArgs interface {
+	isUpdateArgs()
+}
+
+type updateArgsContainer struct {
+	Enum                               ag_binary.BorshEnum `borsh_enum:"true"`
+	V1                                 UpdateArgsV1
+	AsUpdateAuthorityV2                UpdateArgsAsUpdateAuthorityV2
+	AsAuthorityItemDelegateV2          UpdateArgsAsAuthorityItemDelegateV2
+	AsCollectionDelegateV2             UpdateArgsAsCollectionDelegateV2
+	AsDataDelegateV2                   UpdateArgsAsDataDelegateV2
+	AsProgrammableConfigDelegateV2     UpdateArgsAsProgrammableConfigDelegateV2
+	AsDataItemDelegateV2               UpdateArgsAsDataItemDelegateV2
+	AsCollectionItemDelegateV2         UpdateArgsAsCollectionItemDelegateV2
+	AsProgrammableConfigItemDelegateV2 UpdateArgsAsProgrammableConfigItemDelegateV2
+}
+
+type UpdateArgsV1 struct {
+	NewUpdateAuthority  *ag_solanago.PublicKey `bin:"optional"`
+	Data                *Data                  `bin:"optional"`
+	PrimarySaleHappened *bool                  `bin:"optional"`
+	IsMutable           *bool                  `bin:"optional"`
+	Collection          CollectionToggle
+	CollectionDetails   CollectionDetailsToggle
+	Uses                UsesToggle
+	RuleSet             RuleSetToggle
+	AuthorizationData   *AuthorizationData `bin:"optional"`
+}
+
+func (obj UpdateArgsV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `NewUpdateAuthority` param (optional):
+	{
+		if obj.NewUpdateAuthority == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.NewUpdateAuthority)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Serialize `Data` param (optional):
+	{
+		if obj.Data == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.Data)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Serialize `PrimarySaleHappened` param (optional):
+	{
+		if obj.PrimarySaleHappened == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.PrimarySaleHappened)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Serialize `IsMutable` param (optional):
+	{
+		if obj.IsMutable == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.IsMutable)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Serialize `Collection` param:
+	{
+		tmp := collectionToggleContainer{}
+		switch realvalue := obj.Collection.(type) {
+		case *CollectionToggleNone:
+			tmp.Enum = 0
+			tmp.None = *realvalue
+		case *CollectionToggleClear:
+			tmp.Enum = 1
+			tmp.Clear = *realvalue
+		case *CollectionToggleSet:
+			tmp.Enum = 2
+			tmp.Set = *realvalue
+		}
+		err := encoder.Encode(tmp)
+		if err != nil {
+			return err
+		}
+	}
+	// Serialize `CollectionDetails` param:
+	{
+		tmp := collectionDetailsToggleContainer{}
+		switch realvalue := obj.CollectionDetails.(type) {
+		case *CollectionDetailsToggleNone:
+			tmp.Enum = 0
+			tmp.None = *realvalue
+		case *CollectionDetailsToggleClear:
+			tmp.Enum = 1
+			tmp.Clear = *realvalue
+		case *CollectionDetailsToggleSet:
+			tmp.Enum = 2
+			tmp.Set = *realvalue
+		}
+		err := encoder.Encode(tmp)
+		if err != nil {
+			return err
+		}
+	}
+	// Serialize `Uses` param:
+	{
+		tmp := usesToggleContainer{}
+		switch realvalue := obj.Uses.(type) {
+		case *UsesToggleNone:
+			tmp.Enum = 0
+			tmp.None = *realvalue
+		case *UsesToggleClear:
+			tmp.Enum = 1
+			tmp.Clear = *realvalue
+		case *UsesToggleSet:
+			tmp.Enum = 2
+			tmp.Set = *realvalue
+		}
+		err := encoder.Encode(tmp)
+		if err != nil {
+			return err
+		}
+	}
+	// Serialize `RuleSet` param:
+	{
+		tmp := ruleSetToggleContainer{}
+		switch realvalue := obj.RuleSet.(type) {
+		case *RuleSetToggleNone:
+			tmp.Enum = 0
+			tmp.None = *realvalue
+		case *RuleSetToggleClear:
+			tmp.Enum = 1
+			tmp.Clear = *realvalue
+		case *RuleSetToggleSet:
+			tmp.Enum = 2
+			tmp.Set = *realvalue
+		}
+		err := encoder.Encode(tmp)
+		if err != nil {
+			return err
+		}
+	}
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *UpdateArgsV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `NewUpdateAuthority` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.NewUpdateAuthority)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Deserialize `Data` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.Data)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Deserialize `PrimarySaleHappened` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.PrimarySaleHappened)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Deserialize `IsMutable` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.IsMutable)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Deserialize `Collection`:
+	{
+		tmp := new(collectionToggleContainer)
+		err := decoder.Decode(tmp)
+		if err != nil {
+			return err
+		}
+		switch tmp.Enum {
+		case 0:
+			obj.Collection = (*CollectionToggleNone)(&tmp.Enum)
+		case 1:
+			obj.Collection = (*CollectionToggleClear)(&tmp.Enum)
+		case 2:
+			obj.Collection = &tmp.Set
+		default:
+			return fmt.Errorf("unknown enum index: %v", tmp.Enum)
+		}
+	}
+	// Deserialize `CollectionDetails`:
+	{
+		tmp := new(collectionDetailsToggleContainer)
+		err := decoder.Decode(tmp)
+		if err != nil {
+			return err
+		}
+		switch tmp.Enum {
+		case 0:
+			obj.CollectionDetails = (*CollectionDetailsToggleNone)(&tmp.Enum)
+		case 1:
+			obj.CollectionDetails = (*CollectionDetailsToggleClear)(&tmp.Enum)
+		case 2:
+			obj.CollectionDetails = &tmp.Set
+		default:
+			return fmt.Errorf("unknown enum index: %v", tmp.Enum)
+		}
+	}
+	// Deserialize `Uses`:
+	{
+		tmp := new(usesToggleContainer)
+		err := decoder.Decode(tmp)
+		if err != nil {
+			return err
+		}
+		switch tmp.Enum {
+		case 0:
+			obj.Uses = (*UsesToggleNone)(&tmp.Enum)
+		case 1:
+			obj.Uses = (*UsesToggleClear)(&tmp.Enum)
+		case 2:
+			obj.Uses = &tmp.Set
+		default:
+			return fmt.Errorf("unknown enum index: %v", tmp.Enum)
+		}
+	}
+	// Deserialize `RuleSet`:
+	{
+		tmp := new(ruleSetToggleContainer)
+		err := decoder.Decode(tmp)
+		if err != nil {
+			return err
+		}
+		switch tmp.Enum {
+		case 0:
+			obj.RuleSet = (*RuleSetToggleNone)(&tmp.Enum)
+		case 1:
+			obj.RuleSet = (*RuleSetToggleClear)(&tmp.Enum)
+		case 2:
+			obj.RuleSet = &tmp.Set
+		default:
+			return fmt.Errorf("unknown enum index: %v", tmp.Enum)
+		}
+	}
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *UpdateArgsV1) isUpdateArgs() {}
+
+type UpdateArgsAsUpdateAuthorityV2 struct {
+	NewUpdateAuthority  *ag_solanago.PublicKey `bin:"optional"`
+	Data                *Data                  `bin:"optional"`
+	PrimarySaleHappened *bool                  `bin:"optional"`
+	IsMutable           *bool                  `bin:"optional"`
+	Collection          CollectionToggle
+	CollectionDetails   CollectionDetailsToggle
+	Uses                UsesToggle
+	RuleSet             RuleSetToggle
+	TokenStandard       *TokenStandard     `bin:"optional"`
+	AuthorizationData   *AuthorizationData `bin:"optional"`
+}
+
+func (obj UpdateArgsAsUpdateAuthorityV2) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `NewUpdateAuthority` param (optional):
+	{
+		if obj.NewUpdateAuthority == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.NewUpdateAuthority)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Serialize `Data` param (optional):
+	{
+		if obj.Data == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.Data)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Serialize `PrimarySaleHappened` param (optional):
+	{
+		if obj.PrimarySaleHappened == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.PrimarySaleHappened)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Serialize `IsMutable` param (optional):
+	{
+		if obj.IsMutable == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.IsMutable)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Serialize `Collection` param:
+	{
+		tmp := collectionToggleContainer{}
+		switch realvalue := obj.Collection.(type) {
+		case *CollectionToggleNone:
+			tmp.Enum = 0
+			tmp.None = *realvalue
+		case *CollectionToggleClear:
+			tmp.Enum = 1
+			tmp.Clear = *realvalue
+		case *CollectionToggleSet:
+			tmp.Enum = 2
+			tmp.Set = *realvalue
+		}
+		err := encoder.Encode(tmp)
+		if err != nil {
+			return err
+		}
+	}
+	// Serialize `CollectionDetails` param:
+	{
+		tmp := collectionDetailsToggleContainer{}
+		switch realvalue := obj.CollectionDetails.(type) {
+		case *CollectionDetailsToggleNone:
+			tmp.Enum = 0
+			tmp.None = *realvalue
+		case *CollectionDetailsToggleClear:
+			tmp.Enum = 1
+			tmp.Clear = *realvalue
+		case *CollectionDetailsToggleSet:
+			tmp.Enum = 2
+			tmp.Set = *realvalue
+		}
+		err := encoder.Encode(tmp)
+		if err != nil {
+			return err
+		}
+	}
+	// Serialize `Uses` param:
+	{
+		tmp := usesToggleContainer{}
+		switch realvalue := obj.Uses.(type) {
+		case *UsesToggleNone:
+			tmp.Enum = 0
+			tmp.None = *realvalue
+		case *UsesToggleClear:
+			tmp.Enum = 1
+			tmp.Clear = *realvalue
+		case *UsesToggleSet:
+			tmp.Enum = 2
+			tmp.Set = *realvalue
+		}
+		err := encoder.Encode(tmp)
+		if err != nil {
+			return err
+		}
+	}
+	// Serialize `RuleSet` param:
+	{
+		tmp := ruleSetToggleContainer{}
+		switch realvalue := obj.RuleSet.(type) {
+		case *RuleSetToggleNone:
+			tmp.Enum = 0
+			tmp.None = *realvalue
+		case *RuleSetToggleClear:
+			tmp.Enum = 1
+			tmp.Clear = *realvalue
+		case *RuleSetToggleSet:
+			tmp.Enum = 2
+			tmp.Set = *realvalue
+		}
+		err := encoder.Encode(tmp)
+		if err != nil {
+			return err
+		}
+	}
+	// Serialize `TokenStandard` param (optional):
+	{
+		if obj.TokenStandard == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.TokenStandard)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *UpdateArgsAsUpdateAuthorityV2) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `NewUpdateAuthority` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.NewUpdateAuthority)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Deserialize `Data` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.Data)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Deserialize `PrimarySaleHappened` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.PrimarySaleHappened)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Deserialize `IsMutable` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.IsMutable)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Deserialize `Collection`:
+	{
+		tmp := new(collectionToggleContainer)
+		err := decoder.Decode(tmp)
+		if err != nil {
+			return err
+		}
+		switch tmp.Enum {
+		case 0:
+			obj.Collection = (*CollectionToggleNone)(&tmp.Enum)
+		case 1:
+			obj.Collection = (*CollectionToggleClear)(&tmp.Enum)
+		case 2:
+			obj.Collection = &tmp.Set
+		default:
+			return fmt.Errorf("unknown enum index: %v", tmp.Enum)
+		}
+	}
+	// Deserialize `CollectionDetails`:
+	{
+		tmp := new(collectionDetailsToggleContainer)
+		err := decoder.Decode(tmp)
+		if err != nil {
+			return err
+		}
+		switch tmp.Enum {
+		case 0:
+			obj.CollectionDetails = (*CollectionDetailsToggleNone)(&tmp.Enum)
+		case 1:
+			obj.CollectionDetails = (*CollectionDetailsToggleClear)(&tmp.Enum)
+		case 2:
+			obj.CollectionDetails = &tmp.Set
+		default:
+			return fmt.Errorf("unknown enum index: %v", tmp.Enum)
+		}
+	}
+	// Deserialize `Uses`:
+	{
+		tmp := new(usesToggleContainer)
+		err := decoder.Decode(tmp)
+		if err != nil {
+			return err
+		}
+		switch tmp.Enum {
+		case 0:
+			obj.Uses = (*UsesToggleNone)(&tmp.Enum)
+		case 1:
+			obj.Uses = (*UsesToggleClear)(&tmp.Enum)
+		case 2:
+			obj.Uses = &tmp.Set
+		default:
+			return fmt.Errorf("unknown enum index: %v", tmp.Enum)
+		}
+	}
+	// Deserialize `RuleSet`:
+	{
+		tmp := new(ruleSetToggleContainer)
+		err := decoder.Decode(tmp)
+		if err != nil {
+			return err
+		}
+		switch tmp.Enum {
+		case 0:
+			obj.RuleSet = (*RuleSetToggleNone)(&tmp.Enum)
+		case 1:
+			obj.RuleSet = (*RuleSetToggleClear)(&tmp.Enum)
+		case 2:
+			obj.RuleSet = &tmp.Set
+		default:
+			return fmt.Errorf("unknown enum index: %v", tmp.Enum)
+		}
+	}
+	// Deserialize `TokenStandard` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.TokenStandard)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *UpdateArgsAsUpdateAuthorityV2) isUpdateArgs() {}
+
+type UpdateArgsAsAuthorityItemDelegateV2 struct {
+	NewUpdateAuthority  *ag_solanago.PublicKey `bin:"optional"`
+	PrimarySaleHappened *bool                  `bin:"optional"`
+	IsMutable           *bool                  `bin:"optional"`
+	TokenStandard       *TokenStandard         `bin:"optional"`
+	AuthorizationData   *AuthorizationData     `bin:"optional"`
+}
+
+func (obj UpdateArgsAsAuthorityItemDelegateV2) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `NewUpdateAuthority` param (optional):
+	{
+		if obj.NewUpdateAuthority == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.NewUpdateAuthority)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Serialize `PrimarySaleHappened` param (optional):
+	{
+		if obj.PrimarySaleHappened == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.PrimarySaleHappened)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Serialize `IsMutable` param (optional):
+	{
+		if obj.IsMutable == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.IsMutable)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Serialize `TokenStandard` param (optional):
+	{
+		if obj.TokenStandard == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.TokenStandard)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *UpdateArgsAsAuthorityItemDelegateV2) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `NewUpdateAuthority` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.NewUpdateAuthority)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Deserialize `PrimarySaleHappened` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.PrimarySaleHappened)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Deserialize `IsMutable` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.IsMutable)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Deserialize `TokenStandard` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.TokenStandard)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *UpdateArgsAsAuthorityItemDelegateV2) isUpdateArgs() {}
+
+type UpdateArgsAsCollectionDelegateV2 struct {
+	Collection        CollectionToggle
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj UpdateArgsAsCollectionDelegateV2) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Collection` param:
+	{
+		tmp := collectionToggleContainer{}
+		switch realvalue := obj.Collection.(type) {
+		case *CollectionToggleNone:
+			tmp.Enum = 0
+			tmp.None = *realvalue
+		case *CollectionToggleClear:
+			tmp.Enum = 1
+			tmp.Clear = *realvalue
+		case *CollectionToggleSet:
+			tmp.Enum = 2
+			tmp.Set = *realvalue
+		}
+		err := encoder.Encode(tmp)
+		if err != nil {
+			return err
+		}
+	}
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *UpdateArgsAsCollectionDelegateV2) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Collection`:
+	{
+		tmp := new(collectionToggleContainer)
+		err := decoder.Decode(tmp)
+		if err != nil {
+			return err
+		}
+		switch tmp.Enum {
+		case 0:
+			obj.Collection = (*CollectionToggleNone)(&tmp.Enum)
+		case 1:
+			obj.Collection = (*CollectionToggleClear)(&tmp.Enum)
+		case 2:
+			obj.Collection = &tmp.Set
+		default:
+			return fmt.Errorf("unknown enum index: %v", tmp.Enum)
+		}
+	}
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *UpdateArgsAsCollectionDelegateV2) isUpdateArgs() {}
+
+type UpdateArgsAsDataDelegateV2 struct {
+	Data              *Data              `bin:"optional"`
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj UpdateArgsAsDataDelegateV2) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Data` param (optional):
+	{
+		if obj.Data == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.Data)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *UpdateArgsAsDataDelegateV2) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Data` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.Data)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *UpdateArgsAsDataDelegateV2) isUpdateArgs() {}
+
+type UpdateArgsAsProgrammableConfigDelegateV2 struct {
+	RuleSet           RuleSetToggle
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj UpdateArgsAsProgrammableConfigDelegateV2) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `RuleSet` param:
+	{
+		tmp := ruleSetToggleContainer{}
+		switch realvalue := obj.RuleSet.(type) {
+		case *RuleSetToggleNone:
+			tmp.Enum = 0
+			tmp.None = *realvalue
+		case *RuleSetToggleClear:
+			tmp.Enum = 1
+			tmp.Clear = *realvalue
+		case *RuleSetToggleSet:
+			tmp.Enum = 2
+			tmp.Set = *realvalue
+		}
+		err := encoder.Encode(tmp)
+		if err != nil {
+			return err
+		}
+	}
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *UpdateArgsAsProgrammableConfigDelegateV2) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `RuleSet`:
+	{
+		tmp := new(ruleSetToggleContainer)
+		err := decoder.Decode(tmp)
+		if err != nil {
+			return err
+		}
+		switch tmp.Enum {
+		case 0:
+			obj.RuleSet = (*RuleSetToggleNone)(&tmp.Enum)
+		case 1:
+			obj.RuleSet = (*RuleSetToggleClear)(&tmp.Enum)
+		case 2:
+			obj.RuleSet = &tmp.Set
+		default:
+			return fmt.Errorf("unknown enum index: %v", tmp.Enum)
+		}
+	}
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *UpdateArgsAsProgrammableConfigDelegateV2) isUpdateArgs() {}
+
+type UpdateArgsAsDataItemDelegateV2 struct {
+	Data              *Data              `bin:"optional"`
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj UpdateArgsAsDataItemDelegateV2) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Data` param (optional):
+	{
+		if obj.Data == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.Data)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *UpdateArgsAsDataItemDelegateV2) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Data` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.Data)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *UpdateArgsAsDataItemDelegateV2) isUpdateArgs() {}
+
+type UpdateArgsAsCollectionItemDelegateV2 struct {
+	Collection        CollectionToggle
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj UpdateArgsAsCollectionItemDelegateV2) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Collection` param:
+	{
+		tmp := collectionToggleContainer{}
+		switch realvalue := obj.Collection.(type) {
+		case *CollectionToggleNone:
+			tmp.Enum = 0
+			tmp.None = *realvalue
+		case *CollectionToggleClear:
+			tmp.Enum = 1
+			tmp.Clear = *realvalue
+		case *CollectionToggleSet:
+			tmp.Enum = 2
+			tmp.Set = *realvalue
+		}
+		err := encoder.Encode(tmp)
+		if err != nil {
+			return err
+		}
+	}
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *UpdateArgsAsCollectionItemDelegateV2) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Collection`:
+	{
+		tmp := new(collectionToggleContainer)
+		err := decoder.Decode(tmp)
+		if err != nil {
+			return err
+		}
+		switch tmp.Enum {
+		case 0:
+			obj.Collection = (*CollectionToggleNone)(&tmp.Enum)
+		case 1:
+			obj.Collection = (*CollectionToggleClear)(&tmp.Enum)
+		case 2:
+			obj.Collection = &tmp.Set
+		default:
+			return fmt.Errorf("unknown enum index: %v", tmp.Enum)
+		}
+	}
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *UpdateArgsAsCollectionItemDelegateV2) isUpdateArgs() {}
+
+type UpdateArgsAsProgrammableConfigItemDelegateV2 struct {
+	RuleSet           RuleSetToggle
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj UpdateArgsAsProgrammableConfigItemDelegateV2) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `RuleSet` param:
+	{
+		tmp := ruleSetToggleContainer{}
+		switch realvalue := obj.RuleSet.(type) {
+		case *RuleSetToggleNone:
+			tmp.Enum = 0
+			tmp.None = *realvalue
+		case *RuleSetToggleClear:
+			tmp.Enum = 1
+			tmp.Clear = *realvalue
+		case *RuleSetToggleSet:
+			tmp.Enum = 2
+			tmp.Set = *realvalue
+		}
+		err := encoder.Encode(tmp)
+		if err != nil {
+			return err
+		}
+	}
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *UpdateArgsAsProgrammableConfigItemDelegateV2) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `RuleSet`:
+	{
+		tmp := new(ruleSetToggleContainer)
+		err := decoder.Decode(tmp)
+		if err != nil {
+			return err
+		}
+		switch tmp.Enum {
+		case 0:
+			obj.RuleSet = (*RuleSetToggleNone)(&tmp.Enum)
+		case 1:
+			obj.RuleSet = (*RuleSetToggleClear)(&tmp.Enum)
+		case 2:
+			obj.RuleSet = &tmp.Set
+		default:
+			return fmt.Errorf("unknown enum index: %v", tmp.Enum)
+		}
+	}
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *UpdateArgsAsProgrammableConfigItemDelegateV2) isUpdateArgs() {}
+
+type CollectionToggle interface {
+	isCollectionToggle()
+}
+
+type collectionToggleContainer struct {
+	Enum  ag_binary.BorshEnum `borsh_enum:"true"`
+	None  CollectionToggleNone
+	Clear CollectionToggleClear
+	Set   CollectionToggleSet
+}
+
+type CollectionToggleNone uint8
+
+func (obj CollectionToggleNone) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	return nil
+}
+
+func (obj *CollectionToggleNone) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	return nil
+}
+
+func (_ *CollectionToggleNone) isCollectionToggle() {}
+
+type CollectionToggleClear uint8
+
+func (obj CollectionToggleClear) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	return nil
+}
+
+func (obj *CollectionToggleClear) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	return nil
+}
+
+func (_ *CollectionToggleClear) isCollectionToggle() {}
+
+type CollectionToggleSet struct {
+	Elem0 Collection
+}
+
+func (_ *CollectionToggleSet) isCollectionToggle() {}
+
+type UsesToggle interface {
+	isUsesToggle()
+}
+
+type usesToggleContainer struct {
+	Enum  ag_binary.BorshEnum `borsh_enum:"true"`
+	None  UsesToggleNone
+	Clear UsesToggleClear
+	Set   UsesToggleSet
+}
+
+type UsesToggleNone uint8
+
+func (obj UsesToggleNone) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	return nil
+}
+
+func (obj *UsesToggleNone) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	return nil
+}
+
+func (_ *UsesToggleNone) isUsesToggle() {}
+
+type UsesToggleClear uint8
+
+func (obj UsesToggleClear) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	return nil
+}
+
+func (obj *UsesToggleClear) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	return nil
+}
+
+func (_ *UsesToggleClear) isUsesToggle() {}
+
+type UsesToggleSet struct {
+	Elem0 Uses
+}
+
+func (_ *UsesToggleSet) isUsesToggle() {}
+
+type CollectionDetailsToggle interface {
+	isCollectionDetailsToggle()
+}
+
+type collectionDetailsToggleContainer struct {
+	Enum  ag_binary.BorshEnum `borsh_enum:"true"`
+	None  CollectionDetailsToggleNone
+	Clear CollectionDetailsToggleClear
+	Set   CollectionDetailsToggleSet
+}
+
+type CollectionDetailsToggleNone uint8
+
+func (obj CollectionDetailsToggleNone) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	return nil
+}
+
+func (obj *CollectionDetailsToggleNone) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	return nil
+}
+
+func (_ *CollectionDetailsToggleNone) isCollectionDetailsToggle() {}
+
+type CollectionDetailsToggleClear uint8
+
+func (obj CollectionDetailsToggleClear) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	return nil
+}
+
+func (obj *CollectionDetailsToggleClear) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	return nil
+}
+
+func (_ *CollectionDetailsToggleClear) isCollectionDetailsToggle() {}
+
+type CollectionDetailsToggleSet struct {
+	Elem0 CollectionDetails
+}
+
+func (_ *CollectionDetailsToggleSet) isCollectionDetailsToggle() {}
+
+type RuleSetToggle interface {
+	isRuleSetToggle()
+}
+
+type ruleSetToggleContainer struct {
+	Enum  ag_binary.BorshEnum `borsh_enum:"true"`
+	None  RuleSetToggleNone
+	Clear RuleSetToggleClear
+	Set   RuleSetToggleSet
+}
+
+type RuleSetToggleNone uint8
+
+func (obj RuleSetToggleNone) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	return nil
+}
+
+func (obj *RuleSetToggleNone) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	return nil
+}
+
+func (_ *RuleSetToggleNone) isRuleSetToggle() {}
+
+type RuleSetToggleClear uint8
+
+func (obj RuleSetToggleClear) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	return nil
+}
+
+func (obj *RuleSetToggleClear) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	return nil
+}
+
+func (_ *RuleSetToggleClear) isRuleSetToggle() {}
+
+type RuleSetToggleSet struct {
+	Elem0 ag_solanago.PublicKey
+}
+
+func (_ *RuleSetToggleSet) isRuleSetToggle() {}
+
+type PrintArgs interface {
+	isPrintArgs()
+}
+
+type printArgsContainer struct {
+	Enum ag_binary.BorshEnum `borsh_enum:"true"`
+	V1   PrintArgsV1
+	V2   PrintArgsV2
+}
+
+type PrintArgsV1 struct {
 	Edition uint64
 }
 
-func (obj MintNewEditionFromMasterEditionViaTokenArgs) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+func (obj PrintArgsV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
 	// Serialize `Edition` param:
 	err = encoder.Encode(obj.Edition)
 	if err != nil {
@@ -534,11 +3758,683 @@ func (obj MintNewEditionFromMasterEditionViaTokenArgs) MarshalWithEncoder(encode
 	return nil
 }
 
-func (obj *MintNewEditionFromMasterEditionViaTokenArgs) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+func (obj *PrintArgsV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
 	// Deserialize `Edition`:
 	err = decoder.Decode(&obj.Edition)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (_ *PrintArgsV1) isPrintArgs() {}
+
+type PrintArgsV2 struct {
+	Edition uint64
+}
+
+func (obj PrintArgsV2) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Edition` param:
+	err = encoder.Encode(obj.Edition)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (obj *PrintArgsV2) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Edition`:
+	err = decoder.Decode(&obj.Edition)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (_ *PrintArgsV2) isPrintArgs() {}
+
+type LockArgs interface {
+	isLockArgs()
+}
+
+type lockArgsContainer struct {
+	Enum ag_binary.BorshEnum `borsh_enum:"true"`
+	V1   LockArgsV1
+}
+
+type LockArgsV1 struct {
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj LockArgsV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *LockArgsV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *LockArgsV1) isLockArgs() {}
+
+type UnlockArgs interface {
+	isUnlockArgs()
+}
+
+type unlockArgsContainer struct {
+	Enum ag_binary.BorshEnum `borsh_enum:"true"`
+	V1   UnlockArgsV1
+}
+
+type UnlockArgsV1 struct {
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj UnlockArgsV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *UnlockArgsV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *UnlockArgsV1) isUnlockArgs() {}
+
+type UseArgs interface {
+	isUseArgs()
+}
+
+type useArgsContainer struct {
+	Enum ag_binary.BorshEnum `borsh_enum:"true"`
+	V1   UseArgsV1
+}
+
+type UseArgsV1 struct {
+	AuthorizationData *AuthorizationData `bin:"optional"`
+}
+
+func (obj UseArgsV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `AuthorizationData` param (optional):
+	{
+		if obj.AuthorizationData == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *UseArgsV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `AuthorizationData` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.AuthorizationData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *UseArgsV1) isUseArgs() {}
+
+type VerificationArgs ag_binary.BorshEnum
+
+const (
+	VerificationArgsCreatorV1 VerificationArgs = iota
+	VerificationArgsCollectionV1
+)
+
+func (value VerificationArgs) String() string {
+	switch value {
+	case VerificationArgsCreatorV1:
+		return "CreatorV1"
+	case VerificationArgsCollectionV1:
+		return "CollectionV1"
+	default:
+		return ""
+	}
+}
+
+type TokenStandard ag_binary.BorshEnum
+
+const (
+	TokenStandardNonFungible TokenStandard = iota
+	TokenStandardFungibleAsset
+	TokenStandardFungible
+	TokenStandardNonFungibleEdition
+	TokenStandardProgrammableNonFungible
+	TokenStandardProgrammableNonFungibleEdition
+)
+
+func (value TokenStandard) String() string {
+	switch value {
+	case TokenStandardNonFungible:
+		return "NonFungible"
+	case TokenStandardFungibleAsset:
+		return "FungibleAsset"
+	case TokenStandardFungible:
+		return "Fungible"
+	case TokenStandardNonFungibleEdition:
+		return "NonFungibleEdition"
+	case TokenStandardProgrammableNonFungible:
+		return "ProgrammableNonFungible"
+	case TokenStandardProgrammableNonFungibleEdition:
+		return "ProgrammableNonFungibleEdition"
+	default:
+		return ""
+	}
+}
+
+type Key ag_binary.BorshEnum
+
+const (
+	KeyUninitialized Key = iota
+	KeyEditionV1
+	KeyMasterEditionV1
+	KeyReservationListV1
+	KeyMetadataV1
+	KeyReservationListV2
+	KeyMasterEditionV2
+	KeyEditionMarker
+	KeyUseAuthorityRecord
+	KeyCollectionAuthorityRecord
+	KeyTokenOwnedEscrow
+	KeyTokenRecord
+	KeyMetadataDelegate
+	KeyEditionMarkerV2
+	KeyHolderDelegate
+)
+
+func (value Key) String() string {
+	switch value {
+	case KeyUninitialized:
+		return "Uninitialized"
+	case KeyEditionV1:
+		return "EditionV1"
+	case KeyMasterEditionV1:
+		return "MasterEditionV1"
+	case KeyReservationListV1:
+		return "ReservationListV1"
+	case KeyMetadataV1:
+		return "MetadataV1"
+	case KeyReservationListV2:
+		return "ReservationListV2"
+	case KeyMasterEditionV2:
+		return "MasterEditionV2"
+	case KeyEditionMarker:
+		return "EditionMarker"
+	case KeyUseAuthorityRecord:
+		return "UseAuthorityRecord"
+	case KeyCollectionAuthorityRecord:
+		return "CollectionAuthorityRecord"
+	case KeyTokenOwnedEscrow:
+		return "TokenOwnedEscrow"
+	case KeyTokenRecord:
+		return "TokenRecord"
+	case KeyMetadataDelegate:
+		return "MetadataDelegate"
+	case KeyEditionMarkerV2:
+		return "EditionMarkerV2"
+	case KeyHolderDelegate:
+		return "HolderDelegate"
+	default:
+		return ""
+	}
+}
+
+type CollectionDetails interface {
+	isCollectionDetails()
+}
+
+type collectionDetailsContainer struct {
+	Enum ag_binary.BorshEnum `borsh_enum:"true"`
+	V1   CollectionDetailsV1
+	V2   CollectionDetailsV2
+}
+
+type CollectionDetailsV1 struct {
+	Size uint64
+}
+
+func (obj CollectionDetailsV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Size` param:
+	err = encoder.Encode(obj.Size)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (obj *CollectionDetailsV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Size`:
+	err = decoder.Decode(&obj.Size)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (_ *CollectionDetailsV1) isCollectionDetails() {}
+
+type CollectionDetailsV2 struct {
+	Padding [8]uint8
+}
+
+func (obj CollectionDetailsV2) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `Padding` param:
+	err = encoder.Encode(obj.Padding)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (obj *CollectionDetailsV2) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `Padding`:
+	err = decoder.Decode(&obj.Padding)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (_ *CollectionDetailsV2) isCollectionDetails() {}
+
+type EscrowAuthority interface {
+	isEscrowAuthority()
+}
+
+type escrowAuthorityContainer struct {
+	Enum       ag_binary.BorshEnum `borsh_enum:"true"`
+	TokenOwner EscrowAuthorityTokenOwner
+	Creator    EscrowAuthorityCreator
+}
+
+type EscrowAuthorityTokenOwner uint8
+
+func (obj EscrowAuthorityTokenOwner) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	return nil
+}
+
+func (obj *EscrowAuthorityTokenOwner) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	return nil
+}
+
+func (_ *EscrowAuthorityTokenOwner) isEscrowAuthority() {}
+
+type EscrowAuthorityCreator struct {
+	Elem0 ag_solanago.PublicKey
+}
+
+func (_ *EscrowAuthorityCreator) isEscrowAuthority() {}
+
+type PrintSupply interface {
+	isPrintSupply()
+}
+
+type printSupplyContainer struct {
+	Enum      ag_binary.BorshEnum `borsh_enum:"true"`
+	Zero      PrintSupplyZero
+	Limited   PrintSupplyLimited
+	Unlimited PrintSupplyUnlimited
+}
+
+type PrintSupplyZero uint8
+
+func (obj PrintSupplyZero) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	return nil
+}
+
+func (obj *PrintSupplyZero) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	return nil
+}
+
+func (_ *PrintSupplyZero) isPrintSupply() {}
+
+type PrintSupplyLimited struct {
+	Elem0 uint64
+}
+
+func (_ *PrintSupplyLimited) isPrintSupply() {}
+
+type PrintSupplyUnlimited uint8
+
+func (obj PrintSupplyUnlimited) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	return nil
+}
+
+func (obj *PrintSupplyUnlimited) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	return nil
+}
+
+func (_ *PrintSupplyUnlimited) isPrintSupply() {}
+
+type ProgrammableConfig interface {
+	isProgrammableConfig()
+}
+
+type programmableConfigContainer struct {
+	Enum ag_binary.BorshEnum `borsh_enum:"true"`
+	V1   ProgrammableConfigV1
+}
+
+type ProgrammableConfigV1 struct {
+	RuleSet *ag_solanago.PublicKey `bin:"optional"`
+}
+
+func (obj ProgrammableConfigV1) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
+	// Serialize `RuleSet` param (optional):
+	{
+		if obj.RuleSet == nil {
+			err = encoder.WriteBool(false)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = encoder.WriteBool(true)
+			if err != nil {
+				return err
+			}
+			err = encoder.Encode(obj.RuleSet)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (obj *ProgrammableConfigV1) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
+	// Deserialize `RuleSet` (optional):
+	{
+		ok, err := decoder.ReadBool()
+		if err != nil {
+			return err
+		}
+		if ok {
+			err = decoder.Decode(&obj.RuleSet)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (_ *ProgrammableConfigV1) isProgrammableConfig() {}
+
+type MigrationType ag_binary.BorshEnum
+
+const (
+	MigrationTypeCollectionV1 MigrationType = iota
+	MigrationTypeProgrammableV1
+)
+
+func (value MigrationType) String() string {
+	switch value {
+	case MigrationTypeCollectionV1:
+		return "CollectionV1"
+	case MigrationTypeProgrammableV1:
+		return "ProgrammableV1"
+	default:
+		return ""
+	}
+}
+
+type TokenState ag_binary.BorshEnum
+
+const (
+	TokenStateUnlocked TokenState = iota
+	TokenStateLocked
+	TokenStateListed
+)
+
+func (value TokenState) String() string {
+	switch value {
+	case TokenStateUnlocked:
+		return "Unlocked"
+	case TokenStateLocked:
+		return "Locked"
+	case TokenStateListed:
+		return "Listed"
+	default:
+		return ""
+	}
+}
+
+type TokenDelegateRole ag_binary.BorshEnum
+
+const (
+	TokenDelegateRoleSale TokenDelegateRole = iota
+	TokenDelegateRoleTransfer
+	TokenDelegateRoleUtility
+	TokenDelegateRoleStaking
+	TokenDelegateRoleStandard
+	TokenDelegateRoleLockedTransfer
+	TokenDelegateRoleMigration
+)
+
+func (value TokenDelegateRole) String() string {
+	switch value {
+	case TokenDelegateRoleSale:
+		return "Sale"
+	case TokenDelegateRoleTransfer:
+		return "Transfer"
+	case TokenDelegateRoleUtility:
+		return "Utility"
+	case TokenDelegateRoleStaking:
+		return "Staking"
+	case TokenDelegateRoleStandard:
+		return "Standard"
+	case TokenDelegateRoleLockedTransfer:
+		return "LockedTransfer"
+	case TokenDelegateRoleMigration:
+		return "Migration"
+	default:
+		return ""
+	}
+}
+
+type AuthorityType ag_binary.BorshEnum
+
+const (
+	AuthorityTypeNone AuthorityType = iota
+	AuthorityTypeMetadata
+	AuthorityTypeHolder
+	AuthorityTypeMetadataDelegate
+	AuthorityTypeTokenDelegate
+)
+
+func (value AuthorityType) String() string {
+	switch value {
+	case AuthorityTypeNone:
+		return "None"
+	case AuthorityTypeMetadata:
+		return "Metadata"
+	case AuthorityTypeHolder:
+		return "Holder"
+	case AuthorityTypeMetadataDelegate:
+		return "MetadataDelegate"
+	case AuthorityTypeTokenDelegate:
+		return "TokenDelegate"
+	default:
+		return ""
+	}
+}
+
+type PayloadKey ag_binary.BorshEnum
+
+const (
+	PayloadKeyAmount PayloadKey = iota
+	PayloadKeyAuthority
+	PayloadKeyAuthoritySeeds
+	PayloadKeyDelegate
+	PayloadKeyDelegateSeeds
+	PayloadKeyDestination
+	PayloadKeyDestinationSeeds
+	PayloadKeyHolder
+	PayloadKeySource
+	PayloadKeySourceSeeds
+)
+
+func (value PayloadKey) String() string {
+	switch value {
+	case PayloadKeyAmount:
+		return "Amount"
+	case PayloadKeyAuthority:
+		return "Authority"
+	case PayloadKeyAuthoritySeeds:
+		return "AuthoritySeeds"
+	case PayloadKeyDelegate:
+		return "Delegate"
+	case PayloadKeyDelegateSeeds:
+		return "DelegateSeeds"
+	case PayloadKeyDestination:
+		return "Destination"
+	case PayloadKeyDestinationSeeds:
+		return "DestinationSeeds"
+	case PayloadKeyHolder:
+		return "Holder"
+	case PayloadKeySource:
+		return "Source"
+	case PayloadKeySourceSeeds:
+		return "SourceSeeds"
+	default:
+		return ""
+	}
+}
+
+type PayloadType interface {
+	isPayloadType()
+}
+
+type payloadTypeContainer struct {
+	Enum        ag_binary.BorshEnum `borsh_enum:"true"`
+	Pubkey      PayloadTypePubkey
+	Seeds       PayloadTypeSeeds
+	MerkleProof PayloadTypeMerkleProof
+	Number      PayloadTypeNumber
+}
+
+type PayloadTypePubkey struct {
+	Elem0 ag_solanago.PublicKey
+}
+
+func (_ *PayloadTypePubkey) isPayloadType() {}
+
+type PayloadTypeSeeds struct {
+	Elem0 SeedsVec
+}
+
+func (_ *PayloadTypeSeeds) isPayloadType() {}
+
+type PayloadTypeMerkleProof struct {
+	Elem0 ProofInfo
+}
+
+func (_ *PayloadTypeMerkleProof) isPayloadType() {}
+
+type PayloadTypeNumber struct {
+	Elem0 uint64
+}
+
+func (_ *PayloadTypeNumber) isPayloadType() {}
+
+type UseMethod ag_binary.BorshEnum
+
+const (
+	UseMethodBurn UseMethod = iota
+	UseMethodMultiple
+	UseMethodSingle
+)
+
+func (value UseMethod) String() string {
+	switch value {
+	case UseMethodBurn:
+		return "Burn"
+	case UseMethodMultiple:
+		return "Multiple"
+	case UseMethodSingle:
+		return "Single"
+	default:
+		return ""
+	}
 }

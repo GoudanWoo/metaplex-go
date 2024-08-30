@@ -21,7 +21,6 @@ func TestEncodeDecode_UnverifyCollection(t *testing.T) {
 				buf := new(bytes.Buffer)
 				err := encodeT(*params, buf)
 				ag_require.NoError(t, err)
-				//
 				got := new(UnverifyCollection)
 				err = decodeT(got, buf.Bytes())
 				got.AccountMetaSlice = nil

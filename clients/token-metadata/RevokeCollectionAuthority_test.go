@@ -21,7 +21,6 @@ func TestEncodeDecode_RevokeCollectionAuthority(t *testing.T) {
 				buf := new(bytes.Buffer)
 				err := encodeT(*params, buf)
 				ag_require.NoError(t, err)
-				//
 				got := new(RevokeCollectionAuthority)
 				err = decodeT(got, buf.Bytes())
 				got.AccountMetaSlice = nil

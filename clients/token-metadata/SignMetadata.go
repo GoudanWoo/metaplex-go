@@ -10,10 +10,10 @@ import (
 	ag_treeout "github.com/gagliardetto/treeout"
 )
 
-// Sign a piece of metadata that has you as an unverified creator so that it is now verified.
+// SignMetadata is the `SignMetadata` instruction.
 type SignMetadata struct {
 
-	// [0] = [WRITE] metadataPDA
+	// [0] = [WRITE] metadata
 	// ··········· Metadata (pda of ['metadata', program id, mint id])
 	//
 	// [1] = [SIGNER] creator
@@ -29,16 +29,16 @@ func NewSignMetadataInstructionBuilder() *SignMetadata {
 	return nd
 }
 
-// SetMetadataPDAAccount sets the "metadataPDA" account.
+// SetMetadataAccount sets the "metadata" account.
 // Metadata (pda of ['metadata', program id, mint id])
-func (inst *SignMetadata) SetMetadataPDAAccount(metadataPDA ag_solanago.PublicKey) *SignMetadata {
-	inst.AccountMetaSlice[0] = ag_solanago.Meta(metadataPDA).WRITE()
+func (inst *SignMetadata) SetMetadataAccount(metadata ag_solanago.PublicKey) *SignMetadata {
+	inst.AccountMetaSlice[0] = ag_solanago.Meta(metadata).WRITE()
 	return inst
 }
 
-// GetMetadataPDAAccount gets the "metadataPDA" account.
+// GetMetadataAccount gets the "metadata" account.
 // Metadata (pda of ['metadata', program id, mint id])
-func (inst *SignMetadata) GetMetadataPDAAccount() *ag_solanago.AccountMeta {
+func (inst *SignMetadata) GetMetadataAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(0)
 }
 
@@ -76,7 +76,7 @@ func (inst *SignMetadata) Validate() error {
 	// Check whether all (required) accounts are set:
 	{
 		if inst.AccountMetaSlice[0] == nil {
-			return errors.New("accounts.MetadataPDA is not set")
+			return errors.New("accounts.Metadata is not set")
 		}
 		if inst.AccountMetaSlice[1] == nil {
 			return errors.New("accounts.Creator is not set")
@@ -98,8 +98,8 @@ func (inst *SignMetadata) EncodeToTree(parent ag_treeout.Branches) {
 
 					// Accounts of the instruction:
 					instructionBranch.Child("Accounts[len=2]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
-						accountsBranch.Child(ag_format.Meta("metadataPDA", inst.AccountMetaSlice.Get(0)))
-						accountsBranch.Child(ag_format.Meta("    creator", inst.AccountMetaSlice.Get(1)))
+						accountsBranch.Child(ag_format.Meta("metadata", inst.AccountMetaSlice.Get(0)))
+						accountsBranch.Child(ag_format.Meta(" creator", inst.AccountMetaSlice.Get(1)))
 					})
 				})
 		})
@@ -115,9 +115,9 @@ func (obj *SignMetadata) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err e
 // NewSignMetadataInstruction declares a new SignMetadata instruction with the provided parameters and accounts.
 func NewSignMetadataInstruction(
 	// Accounts:
-	metadataPDA ag_solanago.PublicKey,
+	metadata ag_solanago.PublicKey,
 	creator ag_solanago.PublicKey) *SignMetadata {
 	return NewSignMetadataInstructionBuilder().
-		SetMetadataPDAAccount(metadataPDA).
+		SetMetadataAccount(metadata).
 		SetCreatorAccount(creator)
 }

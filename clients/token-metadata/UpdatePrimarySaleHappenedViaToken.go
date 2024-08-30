@@ -10,19 +10,16 @@ import (
 	ag_treeout "github.com/gagliardetto/treeout"
 )
 
-// Allows updating the primary sale boolean on Metadata solely through owning an account
-// containing a token from the metadata's mint and being a signer on this transaction.
-// A sort of limited authority for limited update capability that is required for things like
-// Metaplex to work without needing full authority passing.
+// UpdatePrimarySaleHappenedViaToken is the `UpdatePrimarySaleHappenedViaToken` instruction.
 type UpdatePrimarySaleHappenedViaToken struct {
 
-	// [0] = [WRITE] metadataKeyPDA
+	// [0] = [WRITE] metadata
 	// ··········· Metadata key (pda of ['metadata', program id, mint id])
 	//
 	// [1] = [SIGNER] owner
 	// ··········· Owner on the token account
 	//
-	// [2] = [] container
+	// [2] = [] token
 	// ··········· Account containing tokens from the metadata's mint
 	ag_solanago.AccountMetaSlice `bin:"-"`
 }
@@ -35,16 +32,16 @@ func NewUpdatePrimarySaleHappenedViaTokenInstructionBuilder() *UpdatePrimarySale
 	return nd
 }
 
-// SetMetadataKeyPDAAccount sets the "metadataKeyPDA" account.
+// SetMetadataAccount sets the "metadata" account.
 // Metadata key (pda of ['metadata', program id, mint id])
-func (inst *UpdatePrimarySaleHappenedViaToken) SetMetadataKeyPDAAccount(metadataKeyPDA ag_solanago.PublicKey) *UpdatePrimarySaleHappenedViaToken {
-	inst.AccountMetaSlice[0] = ag_solanago.Meta(metadataKeyPDA).WRITE()
+func (inst *UpdatePrimarySaleHappenedViaToken) SetMetadataAccount(metadata ag_solanago.PublicKey) *UpdatePrimarySaleHappenedViaToken {
+	inst.AccountMetaSlice[0] = ag_solanago.Meta(metadata).WRITE()
 	return inst
 }
 
-// GetMetadataKeyPDAAccount gets the "metadataKeyPDA" account.
+// GetMetadataAccount gets the "metadata" account.
 // Metadata key (pda of ['metadata', program id, mint id])
-func (inst *UpdatePrimarySaleHappenedViaToken) GetMetadataKeyPDAAccount() *ag_solanago.AccountMeta {
+func (inst *UpdatePrimarySaleHappenedViaToken) GetMetadataAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(0)
 }
 
@@ -61,16 +58,16 @@ func (inst *UpdatePrimarySaleHappenedViaToken) GetOwnerAccount() *ag_solanago.Ac
 	return inst.AccountMetaSlice.Get(1)
 }
 
-// SetContainerAccount sets the "container" account.
+// SetTokenAccount sets the "token" account.
 // Account containing tokens from the metadata's mint
-func (inst *UpdatePrimarySaleHappenedViaToken) SetContainerAccount(container ag_solanago.PublicKey) *UpdatePrimarySaleHappenedViaToken {
-	inst.AccountMetaSlice[2] = ag_solanago.Meta(container)
+func (inst *UpdatePrimarySaleHappenedViaToken) SetTokenAccount(token ag_solanago.PublicKey) *UpdatePrimarySaleHappenedViaToken {
+	inst.AccountMetaSlice[2] = ag_solanago.Meta(token)
 	return inst
 }
 
-// GetContainerAccount gets the "container" account.
+// GetTokenAccount gets the "token" account.
 // Account containing tokens from the metadata's mint
-func (inst *UpdatePrimarySaleHappenedViaToken) GetContainerAccount() *ag_solanago.AccountMeta {
+func (inst *UpdatePrimarySaleHappenedViaToken) GetTokenAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(2)
 }
 
@@ -95,13 +92,13 @@ func (inst *UpdatePrimarySaleHappenedViaToken) Validate() error {
 	// Check whether all (required) accounts are set:
 	{
 		if inst.AccountMetaSlice[0] == nil {
-			return errors.New("accounts.MetadataKeyPDA is not set")
+			return errors.New("accounts.Metadata is not set")
 		}
 		if inst.AccountMetaSlice[1] == nil {
 			return errors.New("accounts.Owner is not set")
 		}
 		if inst.AccountMetaSlice[2] == nil {
-			return errors.New("accounts.Container is not set")
+			return errors.New("accounts.Token is not set")
 		}
 	}
 	return nil
@@ -120,9 +117,9 @@ func (inst *UpdatePrimarySaleHappenedViaToken) EncodeToTree(parent ag_treeout.Br
 
 					// Accounts of the instruction:
 					instructionBranch.Child("Accounts[len=3]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
-						accountsBranch.Child(ag_format.Meta("metadataKeyPDA", inst.AccountMetaSlice.Get(0)))
-						accountsBranch.Child(ag_format.Meta("         owner", inst.AccountMetaSlice.Get(1)))
-						accountsBranch.Child(ag_format.Meta("     container", inst.AccountMetaSlice.Get(2)))
+						accountsBranch.Child(ag_format.Meta("metadata", inst.AccountMetaSlice.Get(0)))
+						accountsBranch.Child(ag_format.Meta("   owner", inst.AccountMetaSlice.Get(1)))
+						accountsBranch.Child(ag_format.Meta("   token", inst.AccountMetaSlice.Get(2)))
 					})
 				})
 		})
@@ -138,11 +135,11 @@ func (obj *UpdatePrimarySaleHappenedViaToken) UnmarshalWithDecoder(decoder *ag_b
 // NewUpdatePrimarySaleHappenedViaTokenInstruction declares a new UpdatePrimarySaleHappenedViaToken instruction with the provided parameters and accounts.
 func NewUpdatePrimarySaleHappenedViaTokenInstruction(
 	// Accounts:
-	metadataKeyPDA ag_solanago.PublicKey,
+	metadata ag_solanago.PublicKey,
 	owner ag_solanago.PublicKey,
-	container ag_solanago.PublicKey) *UpdatePrimarySaleHappenedViaToken {
+	token ag_solanago.PublicKey) *UpdatePrimarySaleHappenedViaToken {
 	return NewUpdatePrimarySaleHappenedViaTokenInstructionBuilder().
-		SetMetadataKeyPDAAccount(metadataKeyPDA).
+		SetMetadataAccount(metadata).
 		SetOwnerAccount(owner).
-		SetContainerAccount(container)
+		SetTokenAccount(token)
 }

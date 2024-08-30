@@ -10,33 +10,36 @@ import (
 	ag_treeout "github.com/gagliardetto/treeout"
 )
 
-// If a MetadataAccount Has a Collection allow the UpdateAuthority of the Collection to Verify the NFT Belongs in the Collection
+// VerifyCollection is the `VerifyCollection` instruction.
 type VerifyCollection struct {
 
 	// [0] = [WRITE] metadata
 	// ··········· Metadata account
 	//
-	// [1] = [SIGNER] collectionUpdateAuthority
+	// [1] = [WRITE, SIGNER] collectionAuthority
 	// ··········· Collection Update authority
 	//
-	// [2] = [SIGNER] payer
+	// [2] = [WRITE, SIGNER] payer
 	// ··········· payer
 	//
 	// [3] = [] collectionMint
 	// ··········· Mint of the Collection
 	//
-	// [4] = [] collectionMetadata
+	// [4] = [] collection
 	// ··········· Metadata Account of the Collection
 	//
-	// [5] = [] masterEditionV2
+	// [5] = [] collectionMasterEditionAccount
 	// ··········· MasterEdition2 Account of the Collection Token
+	//
+	// [6] = [] collectionAuthorityRecord
+	// ··········· Collection Authority Record PDA
 	ag_solanago.AccountMetaSlice `bin:"-"`
 }
 
 // NewVerifyCollectionInstructionBuilder creates a new `VerifyCollection` instruction builder.
 func NewVerifyCollectionInstructionBuilder() *VerifyCollection {
 	nd := &VerifyCollection{
-		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 6),
+		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 7),
 	}
 	return nd
 }
@@ -54,23 +57,23 @@ func (inst *VerifyCollection) GetMetadataAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(0)
 }
 
-// SetCollectionUpdateAuthorityAccount sets the "collectionUpdateAuthority" account.
+// SetCollectionAuthorityAccount sets the "collectionAuthority" account.
 // Collection Update authority
-func (inst *VerifyCollection) SetCollectionUpdateAuthorityAccount(collectionUpdateAuthority ag_solanago.PublicKey) *VerifyCollection {
-	inst.AccountMetaSlice[1] = ag_solanago.Meta(collectionUpdateAuthority).SIGNER()
+func (inst *VerifyCollection) SetCollectionAuthorityAccount(collectionAuthority ag_solanago.PublicKey) *VerifyCollection {
+	inst.AccountMetaSlice[1] = ag_solanago.Meta(collectionAuthority).WRITE().SIGNER()
 	return inst
 }
 
-// GetCollectionUpdateAuthorityAccount gets the "collectionUpdateAuthority" account.
+// GetCollectionAuthorityAccount gets the "collectionAuthority" account.
 // Collection Update authority
-func (inst *VerifyCollection) GetCollectionUpdateAuthorityAccount() *ag_solanago.AccountMeta {
+func (inst *VerifyCollection) GetCollectionAuthorityAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(1)
 }
 
 // SetPayerAccount sets the "payer" account.
 // payer
 func (inst *VerifyCollection) SetPayerAccount(payer ag_solanago.PublicKey) *VerifyCollection {
-	inst.AccountMetaSlice[2] = ag_solanago.Meta(payer).SIGNER()
+	inst.AccountMetaSlice[2] = ag_solanago.Meta(payer).WRITE().SIGNER()
 	return inst
 }
 
@@ -93,30 +96,43 @@ func (inst *VerifyCollection) GetCollectionMintAccount() *ag_solanago.AccountMet
 	return inst.AccountMetaSlice.Get(3)
 }
 
-// SetCollectionMetadataAccount sets the "collectionMetadata" account.
+// SetCollectionAccount sets the "collection" account.
 // Metadata Account of the Collection
-func (inst *VerifyCollection) SetCollectionMetadataAccount(collectionMetadata ag_solanago.PublicKey) *VerifyCollection {
-	inst.AccountMetaSlice[4] = ag_solanago.Meta(collectionMetadata)
+func (inst *VerifyCollection) SetCollectionAccount(collection ag_solanago.PublicKey) *VerifyCollection {
+	inst.AccountMetaSlice[4] = ag_solanago.Meta(collection)
 	return inst
 }
 
-// GetCollectionMetadataAccount gets the "collectionMetadata" account.
+// GetCollectionAccount gets the "collection" account.
 // Metadata Account of the Collection
-func (inst *VerifyCollection) GetCollectionMetadataAccount() *ag_solanago.AccountMeta {
+func (inst *VerifyCollection) GetCollectionAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(4)
 }
 
-// SetMasterEditionV2Account sets the "masterEditionV2" account.
+// SetCollectionMasterEditionAccountAccount sets the "collectionMasterEditionAccount" account.
 // MasterEdition2 Account of the Collection Token
-func (inst *VerifyCollection) SetMasterEditionV2Account(masterEditionV2 ag_solanago.PublicKey) *VerifyCollection {
-	inst.AccountMetaSlice[5] = ag_solanago.Meta(masterEditionV2)
+func (inst *VerifyCollection) SetCollectionMasterEditionAccountAccount(collectionMasterEditionAccount ag_solanago.PublicKey) *VerifyCollection {
+	inst.AccountMetaSlice[5] = ag_solanago.Meta(collectionMasterEditionAccount)
 	return inst
 }
 
-// GetMasterEditionV2Account gets the "masterEditionV2" account.
+// GetCollectionMasterEditionAccountAccount gets the "collectionMasterEditionAccount" account.
 // MasterEdition2 Account of the Collection Token
-func (inst *VerifyCollection) GetMasterEditionV2Account() *ag_solanago.AccountMeta {
+func (inst *VerifyCollection) GetCollectionMasterEditionAccountAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(5)
+}
+
+// SetCollectionAuthorityRecordAccount sets the "collectionAuthorityRecord" account.
+// Collection Authority Record PDA
+func (inst *VerifyCollection) SetCollectionAuthorityRecordAccount(collectionAuthorityRecord ag_solanago.PublicKey) *VerifyCollection {
+	inst.AccountMetaSlice[6] = ag_solanago.Meta(collectionAuthorityRecord)
+	return inst
+}
+
+// GetCollectionAuthorityRecordAccount gets the "collectionAuthorityRecord" account (optional).
+// Collection Authority Record PDA
+func (inst *VerifyCollection) GetCollectionAuthorityRecordAccount() *ag_solanago.AccountMeta {
+	return inst.AccountMetaSlice.Get(6)
 }
 
 func (inst VerifyCollection) Build() *Instruction {
@@ -143,7 +159,7 @@ func (inst *VerifyCollection) Validate() error {
 			return errors.New("accounts.Metadata is not set")
 		}
 		if inst.AccountMetaSlice[1] == nil {
-			return errors.New("accounts.CollectionUpdateAuthority is not set")
+			return errors.New("accounts.CollectionAuthority is not set")
 		}
 		if inst.AccountMetaSlice[2] == nil {
 			return errors.New("accounts.Payer is not set")
@@ -152,11 +168,14 @@ func (inst *VerifyCollection) Validate() error {
 			return errors.New("accounts.CollectionMint is not set")
 		}
 		if inst.AccountMetaSlice[4] == nil {
-			return errors.New("accounts.CollectionMetadata is not set")
+			return errors.New("accounts.Collection is not set")
 		}
 		if inst.AccountMetaSlice[5] == nil {
-			return errors.New("accounts.MasterEditionV2 is not set")
+			return errors.New("accounts.CollectionMasterEditionAccount is not set")
 		}
+
+		// [6] = CollectionAuthorityRecord is optional
+
 	}
 	return nil
 }
@@ -173,13 +192,14 @@ func (inst *VerifyCollection) EncodeToTree(parent ag_treeout.Branches) {
 					instructionBranch.Child("Params[len=0]").ParentFunc(func(paramsBranch ag_treeout.Branches) {})
 
 					// Accounts of the instruction:
-					instructionBranch.Child("Accounts[len=6]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
+					instructionBranch.Child("Accounts[len=7]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
 						accountsBranch.Child(ag_format.Meta("                 metadata", inst.AccountMetaSlice.Get(0)))
-						accountsBranch.Child(ag_format.Meta("collectionUpdateAuthority", inst.AccountMetaSlice.Get(1)))
+						accountsBranch.Child(ag_format.Meta("      collectionAuthority", inst.AccountMetaSlice.Get(1)))
 						accountsBranch.Child(ag_format.Meta("                    payer", inst.AccountMetaSlice.Get(2)))
 						accountsBranch.Child(ag_format.Meta("           collectionMint", inst.AccountMetaSlice.Get(3)))
-						accountsBranch.Child(ag_format.Meta("       collectionMetadata", inst.AccountMetaSlice.Get(4)))
-						accountsBranch.Child(ag_format.Meta("          masterEditionV2", inst.AccountMetaSlice.Get(5)))
+						accountsBranch.Child(ag_format.Meta("               collection", inst.AccountMetaSlice.Get(4)))
+						accountsBranch.Child(ag_format.Meta("  collectionMasterEdition", inst.AccountMetaSlice.Get(5)))
+						accountsBranch.Child(ag_format.Meta("collectionAuthorityRecord", inst.AccountMetaSlice.Get(6)))
 					})
 				})
 		})
@@ -196,16 +216,18 @@ func (obj *VerifyCollection) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (e
 func NewVerifyCollectionInstruction(
 	// Accounts:
 	metadata ag_solanago.PublicKey,
-	collectionUpdateAuthority ag_solanago.PublicKey,
+	collectionAuthority ag_solanago.PublicKey,
 	payer ag_solanago.PublicKey,
 	collectionMint ag_solanago.PublicKey,
-	collectionMetadata ag_solanago.PublicKey,
-	masterEditionV2 ag_solanago.PublicKey) *VerifyCollection {
+	collection ag_solanago.PublicKey,
+	collectionMasterEditionAccount ag_solanago.PublicKey,
+	collectionAuthorityRecord ag_solanago.PublicKey) *VerifyCollection {
 	return NewVerifyCollectionInstructionBuilder().
 		SetMetadataAccount(metadata).
-		SetCollectionUpdateAuthorityAccount(collectionUpdateAuthority).
+		SetCollectionAuthorityAccount(collectionAuthority).
 		SetPayerAccount(payer).
 		SetCollectionMintAccount(collectionMint).
-		SetCollectionMetadataAccount(collectionMetadata).
-		SetMasterEditionV2Account(masterEditionV2)
+		SetCollectionAccount(collection).
+		SetCollectionMasterEditionAccountAccount(collectionMasterEditionAccount).
+		SetCollectionAuthorityRecordAccount(collectionAuthorityRecord)
 }

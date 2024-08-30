@@ -10,19 +10,22 @@ import (
 	ag_treeout "github.com/gagliardetto/treeout"
 )
 
-// Revoke account to call [verify_collection] on this NFT
+// RevokeCollectionAuthority is the `RevokeCollectionAuthority` instruction.
 type RevokeCollectionAuthority struct {
 
-	// [0] = [WRITE] useAuthorityRecordPDA
-	// ··········· Use Authority Record PDA
+	// [0] = [WRITE] collectionAuthorityRecord
+	// ··········· Collection Authority Record PDA
 	//
-	// [1] = [WRITE] ownedToken
-	// ··········· Owned Token Account Of Mint
+	// [1] = [WRITE] delegateAuthority
+	// ··········· Delegated Collection Authority
 	//
-	// [2] = [] metadata
+	// [2] = [WRITE, SIGNER] revokeAuthority
+	// ··········· Update Authority, or Delegated Authority, of Collection NFT
+	//
+	// [3] = [] metadata
 	// ··········· Metadata account
 	//
-	// [3] = [] metadataMint
+	// [4] = [] mint
 	// ··········· Mint of Metadata
 	ag_solanago.AccountMetaSlice `bin:"-"`
 }
@@ -30,61 +33,74 @@ type RevokeCollectionAuthority struct {
 // NewRevokeCollectionAuthorityInstructionBuilder creates a new `RevokeCollectionAuthority` instruction builder.
 func NewRevokeCollectionAuthorityInstructionBuilder() *RevokeCollectionAuthority {
 	nd := &RevokeCollectionAuthority{
-		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 4),
+		AccountMetaSlice: make(ag_solanago.AccountMetaSlice, 5),
 	}
 	return nd
 }
 
-// SetUseAuthorityRecordPDAAccount sets the "useAuthorityRecordPDA" account.
-// Use Authority Record PDA
-func (inst *RevokeCollectionAuthority) SetUseAuthorityRecordPDAAccount(useAuthorityRecordPDA ag_solanago.PublicKey) *RevokeCollectionAuthority {
-	inst.AccountMetaSlice[0] = ag_solanago.Meta(useAuthorityRecordPDA).WRITE()
+// SetCollectionAuthorityRecordAccount sets the "collectionAuthorityRecord" account.
+// Collection Authority Record PDA
+func (inst *RevokeCollectionAuthority) SetCollectionAuthorityRecordAccount(collectionAuthorityRecord ag_solanago.PublicKey) *RevokeCollectionAuthority {
+	inst.AccountMetaSlice[0] = ag_solanago.Meta(collectionAuthorityRecord).WRITE()
 	return inst
 }
 
-// GetUseAuthorityRecordPDAAccount gets the "useAuthorityRecordPDA" account.
-// Use Authority Record PDA
-func (inst *RevokeCollectionAuthority) GetUseAuthorityRecordPDAAccount() *ag_solanago.AccountMeta {
+// GetCollectionAuthorityRecordAccount gets the "collectionAuthorityRecord" account.
+// Collection Authority Record PDA
+func (inst *RevokeCollectionAuthority) GetCollectionAuthorityRecordAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(0)
 }
 
-// SetOwnedTokenAccount sets the "ownedToken" account.
-// Owned Token Account Of Mint
-func (inst *RevokeCollectionAuthority) SetOwnedTokenAccount(ownedToken ag_solanago.PublicKey) *RevokeCollectionAuthority {
-	inst.AccountMetaSlice[1] = ag_solanago.Meta(ownedToken).WRITE()
+// SetDelegateAuthorityAccount sets the "delegateAuthority" account.
+// Delegated Collection Authority
+func (inst *RevokeCollectionAuthority) SetDelegateAuthorityAccount(delegateAuthority ag_solanago.PublicKey) *RevokeCollectionAuthority {
+	inst.AccountMetaSlice[1] = ag_solanago.Meta(delegateAuthority).WRITE()
 	return inst
 }
 
-// GetOwnedTokenAccount gets the "ownedToken" account.
-// Owned Token Account Of Mint
-func (inst *RevokeCollectionAuthority) GetOwnedTokenAccount() *ag_solanago.AccountMeta {
+// GetDelegateAuthorityAccount gets the "delegateAuthority" account.
+// Delegated Collection Authority
+func (inst *RevokeCollectionAuthority) GetDelegateAuthorityAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(1)
+}
+
+// SetRevokeAuthorityAccount sets the "revokeAuthority" account.
+// Update Authority, or Delegated Authority, of Collection NFT
+func (inst *RevokeCollectionAuthority) SetRevokeAuthorityAccount(revokeAuthority ag_solanago.PublicKey) *RevokeCollectionAuthority {
+	inst.AccountMetaSlice[2] = ag_solanago.Meta(revokeAuthority).WRITE().SIGNER()
+	return inst
+}
+
+// GetRevokeAuthorityAccount gets the "revokeAuthority" account.
+// Update Authority, or Delegated Authority, of Collection NFT
+func (inst *RevokeCollectionAuthority) GetRevokeAuthorityAccount() *ag_solanago.AccountMeta {
+	return inst.AccountMetaSlice.Get(2)
 }
 
 // SetMetadataAccount sets the "metadata" account.
 // Metadata account
 func (inst *RevokeCollectionAuthority) SetMetadataAccount(metadata ag_solanago.PublicKey) *RevokeCollectionAuthority {
-	inst.AccountMetaSlice[2] = ag_solanago.Meta(metadata)
+	inst.AccountMetaSlice[3] = ag_solanago.Meta(metadata)
 	return inst
 }
 
 // GetMetadataAccount gets the "metadata" account.
 // Metadata account
 func (inst *RevokeCollectionAuthority) GetMetadataAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(2)
+	return inst.AccountMetaSlice.Get(3)
 }
 
-// SetMetadataMintAccount sets the "metadataMint" account.
+// SetMintAccount sets the "mint" account.
 // Mint of Metadata
-func (inst *RevokeCollectionAuthority) SetMetadataMintAccount(metadataMint ag_solanago.PublicKey) *RevokeCollectionAuthority {
-	inst.AccountMetaSlice[3] = ag_solanago.Meta(metadataMint)
+func (inst *RevokeCollectionAuthority) SetMintAccount(mint ag_solanago.PublicKey) *RevokeCollectionAuthority {
+	inst.AccountMetaSlice[4] = ag_solanago.Meta(mint)
 	return inst
 }
 
-// GetMetadataMintAccount gets the "metadataMint" account.
+// GetMintAccount gets the "mint" account.
 // Mint of Metadata
-func (inst *RevokeCollectionAuthority) GetMetadataMintAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(3)
+func (inst *RevokeCollectionAuthority) GetMintAccount() *ag_solanago.AccountMeta {
+	return inst.AccountMetaSlice.Get(4)
 }
 
 func (inst RevokeCollectionAuthority) Build() *Instruction {
@@ -108,16 +124,19 @@ func (inst *RevokeCollectionAuthority) Validate() error {
 	// Check whether all (required) accounts are set:
 	{
 		if inst.AccountMetaSlice[0] == nil {
-			return errors.New("accounts.UseAuthorityRecordPDA is not set")
+			return errors.New("accounts.CollectionAuthorityRecord is not set")
 		}
 		if inst.AccountMetaSlice[1] == nil {
-			return errors.New("accounts.OwnedToken is not set")
+			return errors.New("accounts.DelegateAuthority is not set")
 		}
 		if inst.AccountMetaSlice[2] == nil {
-			return errors.New("accounts.Metadata is not set")
+			return errors.New("accounts.RevokeAuthority is not set")
 		}
 		if inst.AccountMetaSlice[3] == nil {
-			return errors.New("accounts.MetadataMint is not set")
+			return errors.New("accounts.Metadata is not set")
+		}
+		if inst.AccountMetaSlice[4] == nil {
+			return errors.New("accounts.Mint is not set")
 		}
 	}
 	return nil
@@ -135,11 +154,12 @@ func (inst *RevokeCollectionAuthority) EncodeToTree(parent ag_treeout.Branches) 
 					instructionBranch.Child("Params[len=0]").ParentFunc(func(paramsBranch ag_treeout.Branches) {})
 
 					// Accounts of the instruction:
-					instructionBranch.Child("Accounts[len=4]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
-						accountsBranch.Child(ag_format.Meta("useAuthorityRecordPDA", inst.AccountMetaSlice.Get(0)))
-						accountsBranch.Child(ag_format.Meta("           ownedToken", inst.AccountMetaSlice.Get(1)))
-						accountsBranch.Child(ag_format.Meta("             metadata", inst.AccountMetaSlice.Get(2)))
-						accountsBranch.Child(ag_format.Meta("         metadataMint", inst.AccountMetaSlice.Get(3)))
+					instructionBranch.Child("Accounts[len=5]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
+						accountsBranch.Child(ag_format.Meta("collectionAuthorityRecord", inst.AccountMetaSlice.Get(0)))
+						accountsBranch.Child(ag_format.Meta("        delegateAuthority", inst.AccountMetaSlice.Get(1)))
+						accountsBranch.Child(ag_format.Meta("          revokeAuthority", inst.AccountMetaSlice.Get(2)))
+						accountsBranch.Child(ag_format.Meta("                 metadata", inst.AccountMetaSlice.Get(3)))
+						accountsBranch.Child(ag_format.Meta("                     mint", inst.AccountMetaSlice.Get(4)))
 					})
 				})
 		})
@@ -155,13 +175,15 @@ func (obj *RevokeCollectionAuthority) UnmarshalWithDecoder(decoder *ag_binary.De
 // NewRevokeCollectionAuthorityInstruction declares a new RevokeCollectionAuthority instruction with the provided parameters and accounts.
 func NewRevokeCollectionAuthorityInstruction(
 	// Accounts:
-	useAuthorityRecordPDA ag_solanago.PublicKey,
-	ownedToken ag_solanago.PublicKey,
+	collectionAuthorityRecord ag_solanago.PublicKey,
+	delegateAuthority ag_solanago.PublicKey,
+	revokeAuthority ag_solanago.PublicKey,
 	metadata ag_solanago.PublicKey,
-	metadataMint ag_solanago.PublicKey) *RevokeCollectionAuthority {
+	mint ag_solanago.PublicKey) *RevokeCollectionAuthority {
 	return NewRevokeCollectionAuthorityInstructionBuilder().
-		SetUseAuthorityRecordPDAAccount(useAuthorityRecordPDA).
-		SetOwnedTokenAccount(ownedToken).
+		SetCollectionAuthorityRecordAccount(collectionAuthorityRecord).
+		SetDelegateAuthorityAccount(delegateAuthority).
+		SetRevokeAuthorityAccount(revokeAuthority).
 		SetMetadataAccount(metadata).
-		SetMetadataMintAccount(metadataMint)
+		SetMintAccount(mint)
 }

@@ -10,26 +10,25 @@ import (
 	ag_treeout "github.com/gagliardetto/treeout"
 )
 
-// Create Metadata object.
+// CreateMetadataAccount is the `CreateMetadataAccount` instruction.
 type CreateMetadataAccount struct {
-	Args *CreateMetadataAccountArgs
 
-	// [0] = [WRITE] metadataKeyPDA
+	// [0] = [WRITE] metadata
 	// ··········· Metadata key (pda of ['metadata', program id, mint id])
 	//
-	// [1] = [] mintOfToken
+	// [1] = [] mint
 	// ··········· Mint of token asset
 	//
 	// [2] = [SIGNER] mintAuthority
 	// ··········· Mint authority
 	//
-	// [3] = [SIGNER] payer
+	// [3] = [WRITE, SIGNER] payer
 	// ··········· payer
 	//
-	// [4] = [] updateAuthorityInfo
+	// [4] = [] updateAuthority
 	// ··········· update authority info
 	//
-	// [5] = [] system
+	// [5] = [] systemProgram
 	// ··········· System program
 	//
 	// [6] = [] rent
@@ -45,35 +44,29 @@ func NewCreateMetadataAccountInstructionBuilder() *CreateMetadataAccount {
 	return nd
 }
 
-// SetArgs sets the "args" parameter.
-func (inst *CreateMetadataAccount) SetArgs(args CreateMetadataAccountArgs) *CreateMetadataAccount {
-	inst.Args = &args
+// SetMetadataAccount sets the "metadata" account.
+// Metadata key (pda of ['metadata', program id, mint id])
+func (inst *CreateMetadataAccount) SetMetadataAccount(metadata ag_solanago.PublicKey) *CreateMetadataAccount {
+	inst.AccountMetaSlice[0] = ag_solanago.Meta(metadata).WRITE()
 	return inst
 }
 
-// SetMetadataKeyPDAAccount sets the "metadataKeyPDA" account.
+// GetMetadataAccount gets the "metadata" account.
 // Metadata key (pda of ['metadata', program id, mint id])
-func (inst *CreateMetadataAccount) SetMetadataKeyPDAAccount(metadataKeyPDA ag_solanago.PublicKey) *CreateMetadataAccount {
-	inst.AccountMetaSlice[0] = ag_solanago.Meta(metadataKeyPDA).WRITE()
-	return inst
-}
-
-// GetMetadataKeyPDAAccount gets the "metadataKeyPDA" account.
-// Metadata key (pda of ['metadata', program id, mint id])
-func (inst *CreateMetadataAccount) GetMetadataKeyPDAAccount() *ag_solanago.AccountMeta {
+func (inst *CreateMetadataAccount) GetMetadataAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(0)
 }
 
-// SetMintOfTokenAccount sets the "mintOfToken" account.
+// SetMintAccount sets the "mint" account.
 // Mint of token asset
-func (inst *CreateMetadataAccount) SetMintOfTokenAccount(mintOfToken ag_solanago.PublicKey) *CreateMetadataAccount {
-	inst.AccountMetaSlice[1] = ag_solanago.Meta(mintOfToken)
+func (inst *CreateMetadataAccount) SetMintAccount(mint ag_solanago.PublicKey) *CreateMetadataAccount {
+	inst.AccountMetaSlice[1] = ag_solanago.Meta(mint)
 	return inst
 }
 
-// GetMintOfTokenAccount gets the "mintOfToken" account.
+// GetMintAccount gets the "mint" account.
 // Mint of token asset
-func (inst *CreateMetadataAccount) GetMintOfTokenAccount() *ag_solanago.AccountMeta {
+func (inst *CreateMetadataAccount) GetMintAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(1)
 }
 
@@ -93,7 +86,7 @@ func (inst *CreateMetadataAccount) GetMintAuthorityAccount() *ag_solanago.Accoun
 // SetPayerAccount sets the "payer" account.
 // payer
 func (inst *CreateMetadataAccount) SetPayerAccount(payer ag_solanago.PublicKey) *CreateMetadataAccount {
-	inst.AccountMetaSlice[3] = ag_solanago.Meta(payer).SIGNER()
+	inst.AccountMetaSlice[3] = ag_solanago.Meta(payer).WRITE().SIGNER()
 	return inst
 }
 
@@ -103,29 +96,29 @@ func (inst *CreateMetadataAccount) GetPayerAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(3)
 }
 
-// SetUpdateAuthorityInfoAccount sets the "updateAuthorityInfo" account.
+// SetUpdateAuthorityAccount sets the "updateAuthority" account.
 // update authority info
-func (inst *CreateMetadataAccount) SetUpdateAuthorityInfoAccount(updateAuthorityInfo ag_solanago.PublicKey) *CreateMetadataAccount {
-	inst.AccountMetaSlice[4] = ag_solanago.Meta(updateAuthorityInfo)
+func (inst *CreateMetadataAccount) SetUpdateAuthorityAccount(updateAuthority ag_solanago.PublicKey) *CreateMetadataAccount {
+	inst.AccountMetaSlice[4] = ag_solanago.Meta(updateAuthority)
 	return inst
 }
 
-// GetUpdateAuthorityInfoAccount gets the "updateAuthorityInfo" account.
+// GetUpdateAuthorityAccount gets the "updateAuthority" account.
 // update authority info
-func (inst *CreateMetadataAccount) GetUpdateAuthorityInfoAccount() *ag_solanago.AccountMeta {
+func (inst *CreateMetadataAccount) GetUpdateAuthorityAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(4)
 }
 
-// SetSystemAccount sets the "system" account.
+// SetSystemProgramAccount sets the "systemProgram" account.
 // System program
-func (inst *CreateMetadataAccount) SetSystemAccount(system ag_solanago.PublicKey) *CreateMetadataAccount {
-	inst.AccountMetaSlice[5] = ag_solanago.Meta(system)
+func (inst *CreateMetadataAccount) SetSystemProgramAccount(systemProgram ag_solanago.PublicKey) *CreateMetadataAccount {
+	inst.AccountMetaSlice[5] = ag_solanago.Meta(systemProgram)
 	return inst
 }
 
-// GetSystemAccount gets the "system" account.
+// GetSystemProgramAccount gets the "systemProgram" account.
 // System program
-func (inst *CreateMetadataAccount) GetSystemAccount() *ag_solanago.AccountMeta {
+func (inst *CreateMetadataAccount) GetSystemProgramAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(5)
 }
 
@@ -160,20 +153,13 @@ func (inst CreateMetadataAccount) ValidateAndBuild() (*Instruction, error) {
 }
 
 func (inst *CreateMetadataAccount) Validate() error {
-	// Check whether all (required) parameters are set:
-	{
-		if inst.Args == nil {
-			return errors.New("Args parameter is not set")
-		}
-	}
-
 	// Check whether all (required) accounts are set:
 	{
 		if inst.AccountMetaSlice[0] == nil {
-			return errors.New("accounts.MetadataKeyPDA is not set")
+			return errors.New("accounts.Metadata is not set")
 		}
 		if inst.AccountMetaSlice[1] == nil {
-			return errors.New("accounts.MintOfToken is not set")
+			return errors.New("accounts.Mint is not set")
 		}
 		if inst.AccountMetaSlice[2] == nil {
 			return errors.New("accounts.MintAuthority is not set")
@@ -182,10 +168,10 @@ func (inst *CreateMetadataAccount) Validate() error {
 			return errors.New("accounts.Payer is not set")
 		}
 		if inst.AccountMetaSlice[4] == nil {
-			return errors.New("accounts.UpdateAuthorityInfo is not set")
+			return errors.New("accounts.UpdateAuthority is not set")
 		}
 		if inst.AccountMetaSlice[5] == nil {
-			return errors.New("accounts.System is not set")
+			return errors.New("accounts.SystemProgram is not set")
 		}
 		if inst.AccountMetaSlice[6] == nil {
 			return errors.New("accounts.Rent is not set")
@@ -203,60 +189,45 @@ func (inst *CreateMetadataAccount) EncodeToTree(parent ag_treeout.Branches) {
 				ParentFunc(func(instructionBranch ag_treeout.Branches) {
 
 					// Parameters of the instruction:
-					instructionBranch.Child("Params[len=1]").ParentFunc(func(paramsBranch ag_treeout.Branches) {
-						paramsBranch.Child(ag_format.Param("Args", *inst.Args))
-					})
+					instructionBranch.Child("Params[len=0]").ParentFunc(func(paramsBranch ag_treeout.Branches) {})
 
 					// Accounts of the instruction:
 					instructionBranch.Child("Accounts[len=7]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
-						accountsBranch.Child(ag_format.Meta("     metadataKeyPDA", inst.AccountMetaSlice.Get(0)))
-						accountsBranch.Child(ag_format.Meta("        mintOfToken", inst.AccountMetaSlice.Get(1)))
-						accountsBranch.Child(ag_format.Meta("      mintAuthority", inst.AccountMetaSlice.Get(2)))
-						accountsBranch.Child(ag_format.Meta("              payer", inst.AccountMetaSlice.Get(3)))
-						accountsBranch.Child(ag_format.Meta("updateAuthorityInfo", inst.AccountMetaSlice.Get(4)))
-						accountsBranch.Child(ag_format.Meta("             system", inst.AccountMetaSlice.Get(5)))
-						accountsBranch.Child(ag_format.Meta("               rent", inst.AccountMetaSlice.Get(6)))
+						accountsBranch.Child(ag_format.Meta("       metadata", inst.AccountMetaSlice.Get(0)))
+						accountsBranch.Child(ag_format.Meta("           mint", inst.AccountMetaSlice.Get(1)))
+						accountsBranch.Child(ag_format.Meta("  mintAuthority", inst.AccountMetaSlice.Get(2)))
+						accountsBranch.Child(ag_format.Meta("          payer", inst.AccountMetaSlice.Get(3)))
+						accountsBranch.Child(ag_format.Meta("updateAuthority", inst.AccountMetaSlice.Get(4)))
+						accountsBranch.Child(ag_format.Meta("  systemProgram", inst.AccountMetaSlice.Get(5)))
+						accountsBranch.Child(ag_format.Meta("           rent", inst.AccountMetaSlice.Get(6)))
 					})
 				})
 		})
 }
 
 func (obj CreateMetadataAccount) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
-	// Serialize `Args` param:
-	err = encoder.Encode(obj.Args)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 func (obj *CreateMetadataAccount) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
-	// Deserialize `Args`:
-	err = decoder.Decode(&obj.Args)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
 // NewCreateMetadataAccountInstruction declares a new CreateMetadataAccount instruction with the provided parameters and accounts.
 func NewCreateMetadataAccountInstruction(
-	// Parameters:
-	args CreateMetadataAccountArgs,
 	// Accounts:
-	metadataKeyPDA ag_solanago.PublicKey,
-	mintOfToken ag_solanago.PublicKey,
+	metadata ag_solanago.PublicKey,
+	mint ag_solanago.PublicKey,
 	mintAuthority ag_solanago.PublicKey,
 	payer ag_solanago.PublicKey,
-	updateAuthorityInfo ag_solanago.PublicKey,
-	system ag_solanago.PublicKey,
+	updateAuthority ag_solanago.PublicKey,
+	systemProgram ag_solanago.PublicKey,
 	rent ag_solanago.PublicKey) *CreateMetadataAccount {
 	return NewCreateMetadataAccountInstructionBuilder().
-		SetArgs(args).
-		SetMetadataKeyPDAAccount(metadataKeyPDA).
-		SetMintOfTokenAccount(mintOfToken).
+		SetMetadataAccount(metadata).
+		SetMintAccount(mint).
 		SetMintAuthorityAccount(mintAuthority).
 		SetPayerAccount(payer).
-		SetUpdateAuthorityInfoAccount(updateAuthorityInfo).
-		SetSystemAccount(system).
+		SetUpdateAuthorityAccount(updateAuthority).
+		SetSystemProgramAccount(systemProgram).
 		SetRentAccount(rent)
 }

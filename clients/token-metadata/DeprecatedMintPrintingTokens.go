@@ -10,11 +10,10 @@ import (
 	ag_treeout "github.com/gagliardetto/treeout"
 )
 
-// Using your update authority, mint printing tokens for your master edition.
+// DeprecatedMintPrintingTokens is the `DeprecatedMintPrintingTokens` instruction.
 type DeprecatedMintPrintingTokens struct {
-	Args *MintPrintingTokensViaTokenArgs
 
-	// [0] = [WRITE] destinationAccount
+	// [0] = [WRITE] destination
 	// ··········· Destination account
 	//
 	// [1] = [WRITE] printingMint
@@ -23,10 +22,10 @@ type DeprecatedMintPrintingTokens struct {
 	// [2] = [SIGNER] updateAuthority
 	// ··········· Update authority
 	//
-	// [3] = [] metadataKeyPDA
+	// [3] = [] metadata
 	// ··········· Metadata key (pda of ['metadata', program id, mint id])
 	//
-	// [4] = [] masterEditionV1
+	// [4] = [] masterEdition
 	// ··········· Master Edition V1 key (pda of ['metadata', program id, mint id, 'edition'])
 	//
 	// [5] = [] tokenProgram
@@ -45,20 +44,14 @@ func NewDeprecatedMintPrintingTokensInstructionBuilder() *DeprecatedMintPrinting
 	return nd
 }
 
-// SetArgs sets the "args" parameter.
-func (inst *DeprecatedMintPrintingTokens) SetArgs(args MintPrintingTokensViaTokenArgs) *DeprecatedMintPrintingTokens {
-	inst.Args = &args
-	return inst
-}
-
-// SetDestinationAccount sets the "destinationAccount" account.
+// SetDestinationAccount sets the "destination" account.
 // Destination account
-func (inst *DeprecatedMintPrintingTokens) SetDestinationAccount(destinationAccount ag_solanago.PublicKey) *DeprecatedMintPrintingTokens {
-	inst.AccountMetaSlice[0] = ag_solanago.Meta(destinationAccount).WRITE()
+func (inst *DeprecatedMintPrintingTokens) SetDestinationAccount(destination ag_solanago.PublicKey) *DeprecatedMintPrintingTokens {
+	inst.AccountMetaSlice[0] = ag_solanago.Meta(destination).WRITE()
 	return inst
 }
 
-// GetDestinationAccount gets the "destinationAccount" account.
+// GetDestinationAccount gets the "destination" account.
 // Destination account
 func (inst *DeprecatedMintPrintingTokens) GetDestinationAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(0)
@@ -90,29 +83,29 @@ func (inst *DeprecatedMintPrintingTokens) GetUpdateAuthorityAccount() *ag_solana
 	return inst.AccountMetaSlice.Get(2)
 }
 
-// SetMetadataKeyPDAAccount sets the "metadataKeyPDA" account.
+// SetMetadataAccount sets the "metadata" account.
 // Metadata key (pda of ['metadata', program id, mint id])
-func (inst *DeprecatedMintPrintingTokens) SetMetadataKeyPDAAccount(metadataKeyPDA ag_solanago.PublicKey) *DeprecatedMintPrintingTokens {
-	inst.AccountMetaSlice[3] = ag_solanago.Meta(metadataKeyPDA)
+func (inst *DeprecatedMintPrintingTokens) SetMetadataAccount(metadata ag_solanago.PublicKey) *DeprecatedMintPrintingTokens {
+	inst.AccountMetaSlice[3] = ag_solanago.Meta(metadata)
 	return inst
 }
 
-// GetMetadataKeyPDAAccount gets the "metadataKeyPDA" account.
+// GetMetadataAccount gets the "metadata" account.
 // Metadata key (pda of ['metadata', program id, mint id])
-func (inst *DeprecatedMintPrintingTokens) GetMetadataKeyPDAAccount() *ag_solanago.AccountMeta {
+func (inst *DeprecatedMintPrintingTokens) GetMetadataAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(3)
 }
 
-// SetMasterEditionV1Account sets the "masterEditionV1" account.
+// SetMasterEditionAccount sets the "masterEdition" account.
 // Master Edition V1 key (pda of ['metadata', program id, mint id, 'edition'])
-func (inst *DeprecatedMintPrintingTokens) SetMasterEditionV1Account(masterEditionV1 ag_solanago.PublicKey) *DeprecatedMintPrintingTokens {
-	inst.AccountMetaSlice[4] = ag_solanago.Meta(masterEditionV1)
+func (inst *DeprecatedMintPrintingTokens) SetMasterEditionAccount(masterEdition ag_solanago.PublicKey) *DeprecatedMintPrintingTokens {
+	inst.AccountMetaSlice[4] = ag_solanago.Meta(masterEdition)
 	return inst
 }
 
-// GetMasterEditionV1Account gets the "masterEditionV1" account.
+// GetMasterEditionAccount gets the "masterEdition" account.
 // Master Edition V1 key (pda of ['metadata', program id, mint id, 'edition'])
-func (inst *DeprecatedMintPrintingTokens) GetMasterEditionV1Account() *ag_solanago.AccountMeta {
+func (inst *DeprecatedMintPrintingTokens) GetMasterEditionAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(4)
 }
 
@@ -160,17 +153,10 @@ func (inst DeprecatedMintPrintingTokens) ValidateAndBuild() (*Instruction, error
 }
 
 func (inst *DeprecatedMintPrintingTokens) Validate() error {
-	// Check whether all (required) parameters are set:
-	{
-		if inst.Args == nil {
-			return errors.New("Args parameter is not set")
-		}
-	}
-
 	// Check whether all (required) accounts are set:
 	{
 		if inst.AccountMetaSlice[0] == nil {
-			return errors.New("accounts.DestinationAccount is not set")
+			return errors.New("accounts.Destination is not set")
 		}
 		if inst.AccountMetaSlice[1] == nil {
 			return errors.New("accounts.PrintingMint is not set")
@@ -179,10 +165,10 @@ func (inst *DeprecatedMintPrintingTokens) Validate() error {
 			return errors.New("accounts.UpdateAuthority is not set")
 		}
 		if inst.AccountMetaSlice[3] == nil {
-			return errors.New("accounts.MetadataKeyPDA is not set")
+			return errors.New("accounts.Metadata is not set")
 		}
 		if inst.AccountMetaSlice[4] == nil {
-			return errors.New("accounts.MasterEditionV1 is not set")
+			return errors.New("accounts.MasterEdition is not set")
 		}
 		if inst.AccountMetaSlice[5] == nil {
 			return errors.New("accounts.TokenProgram is not set")
@@ -203,17 +189,15 @@ func (inst *DeprecatedMintPrintingTokens) EncodeToTree(parent ag_treeout.Branche
 				ParentFunc(func(instructionBranch ag_treeout.Branches) {
 
 					// Parameters of the instruction:
-					instructionBranch.Child("Params[len=1]").ParentFunc(func(paramsBranch ag_treeout.Branches) {
-						paramsBranch.Child(ag_format.Param("Args", *inst.Args))
-					})
+					instructionBranch.Child("Params[len=0]").ParentFunc(func(paramsBranch ag_treeout.Branches) {})
 
 					// Accounts of the instruction:
 					instructionBranch.Child("Accounts[len=7]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
 						accountsBranch.Child(ag_format.Meta("    destination", inst.AccountMetaSlice.Get(0)))
 						accountsBranch.Child(ag_format.Meta("   printingMint", inst.AccountMetaSlice.Get(1)))
 						accountsBranch.Child(ag_format.Meta("updateAuthority", inst.AccountMetaSlice.Get(2)))
-						accountsBranch.Child(ag_format.Meta(" metadataKeyPDA", inst.AccountMetaSlice.Get(3)))
-						accountsBranch.Child(ag_format.Meta("masterEditionV1", inst.AccountMetaSlice.Get(4)))
+						accountsBranch.Child(ag_format.Meta("       metadata", inst.AccountMetaSlice.Get(3)))
+						accountsBranch.Child(ag_format.Meta("  masterEdition", inst.AccountMetaSlice.Get(4)))
 						accountsBranch.Child(ag_format.Meta("   tokenProgram", inst.AccountMetaSlice.Get(5)))
 						accountsBranch.Child(ag_format.Meta("           rent", inst.AccountMetaSlice.Get(6)))
 					})
@@ -222,41 +206,28 @@ func (inst *DeprecatedMintPrintingTokens) EncodeToTree(parent ag_treeout.Branche
 }
 
 func (obj DeprecatedMintPrintingTokens) MarshalWithEncoder(encoder *ag_binary.Encoder) (err error) {
-	// Serialize `Args` param:
-	err = encoder.Encode(obj.Args)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 func (obj *DeprecatedMintPrintingTokens) UnmarshalWithDecoder(decoder *ag_binary.Decoder) (err error) {
-	// Deserialize `Args`:
-	err = decoder.Decode(&obj.Args)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
 // NewDeprecatedMintPrintingTokensInstruction declares a new DeprecatedMintPrintingTokens instruction with the provided parameters and accounts.
 func NewDeprecatedMintPrintingTokensInstruction(
-	// Parameters:
-	args MintPrintingTokensViaTokenArgs,
 	// Accounts:
-	destinationAccount ag_solanago.PublicKey,
+	destination ag_solanago.PublicKey,
 	printingMint ag_solanago.PublicKey,
 	updateAuthority ag_solanago.PublicKey,
-	metadataKeyPDA ag_solanago.PublicKey,
-	masterEditionV1 ag_solanago.PublicKey,
+	metadata ag_solanago.PublicKey,
+	masterEdition ag_solanago.PublicKey,
 	tokenProgram ag_solanago.PublicKey,
 	rent ag_solanago.PublicKey) *DeprecatedMintPrintingTokens {
 	return NewDeprecatedMintPrintingTokensInstructionBuilder().
-		SetArgs(args).
-		SetDestinationAccount(destinationAccount).
+		SetDestinationAccount(destination).
 		SetPrintingMintAccount(printingMint).
 		SetUpdateAuthorityAccount(updateAuthority).
-		SetMetadataKeyPDAAccount(metadataKeyPDA).
-		SetMasterEditionV1Account(masterEditionV1).
+		SetMetadataAccount(metadata).
+		SetMasterEditionAccount(masterEdition).
 		SetTokenProgramAccount(tokenProgram).
 		SetRentAccount(rent)
 }

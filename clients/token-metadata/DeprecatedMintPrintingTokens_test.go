@@ -21,7 +21,6 @@ func TestEncodeDecode_DeprecatedMintPrintingTokens(t *testing.T) {
 				buf := new(bytes.Buffer)
 				err := encodeT(*params, buf)
 				ag_require.NoError(t, err)
-				//
 				got := new(DeprecatedMintPrintingTokens)
 				err = decodeT(got, buf.Bytes())
 				got.AccountMetaSlice = nil

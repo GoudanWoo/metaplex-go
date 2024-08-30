@@ -10,8 +10,7 @@ import (
 	ag_treeout "github.com/gagliardetto/treeout"
 )
 
-// Puff a Metadata - make all of it's variable length fields (name/uri/symbol) a fixed length using a null character
-// so that it can be found using offset searches by the RPC to make client lookups cheaper.
+// PuffMetadata is the `PuffMetadata` instruction.
 type PuffMetadata struct {
 
 	// [0] = [WRITE] metadata

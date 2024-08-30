@@ -10,26 +10,26 @@ import (
 	ag_treeout "github.com/gagliardetto/treeout"
 )
 
-// If a MetadataAccount Has a Collection allow an Authority of the Collection to unverify an NFT in a Collection
+// UnverifyCollection is the `UnverifyCollection` instruction.
 type UnverifyCollection struct {
 
 	// [0] = [WRITE] metadata
 	// ··········· Metadata account
 	//
-	// [1] = [SIGNER] collectionAuthority
+	// [1] = [WRITE, SIGNER] collectionAuthority
 	// ··········· Collection Authority
 	//
-	// [2] = [SIGNER] payer
-	// ··········· payer
-	//
-	// [3] = [] collectionMint
+	// [2] = [] collectionMint
 	// ··········· Mint of the Collection
 	//
-	// [4] = [] collectionMetadata
+	// [3] = [] collection
 	// ··········· Metadata Account of the Collection
 	//
-	// [5] = [] masterEditionV2
+	// [4] = [] collectionMasterEditionAccount
 	// ··········· MasterEdition2 Account of the Collection Token
+	//
+	// [5] = [] collectionAuthorityRecord
+	// ··········· Collection Authority Record PDA
 	ag_solanago.AccountMetaSlice `bin:"-"`
 }
 
@@ -57,7 +57,7 @@ func (inst *UnverifyCollection) GetMetadataAccount() *ag_solanago.AccountMeta {
 // SetCollectionAuthorityAccount sets the "collectionAuthority" account.
 // Collection Authority
 func (inst *UnverifyCollection) SetCollectionAuthorityAccount(collectionAuthority ag_solanago.PublicKey) *UnverifyCollection {
-	inst.AccountMetaSlice[1] = ag_solanago.Meta(collectionAuthority).SIGNER()
+	inst.AccountMetaSlice[1] = ag_solanago.Meta(collectionAuthority).WRITE().SIGNER()
 	return inst
 }
 
@@ -67,55 +67,55 @@ func (inst *UnverifyCollection) GetCollectionAuthorityAccount() *ag_solanago.Acc
 	return inst.AccountMetaSlice.Get(1)
 }
 
-// SetPayerAccount sets the "payer" account.
-// payer
-func (inst *UnverifyCollection) SetPayerAccount(payer ag_solanago.PublicKey) *UnverifyCollection {
-	inst.AccountMetaSlice[2] = ag_solanago.Meta(payer).SIGNER()
-	return inst
-}
-
-// GetPayerAccount gets the "payer" account.
-// payer
-func (inst *UnverifyCollection) GetPayerAccount() *ag_solanago.AccountMeta {
-	return inst.AccountMetaSlice.Get(2)
-}
-
 // SetCollectionMintAccount sets the "collectionMint" account.
 // Mint of the Collection
 func (inst *UnverifyCollection) SetCollectionMintAccount(collectionMint ag_solanago.PublicKey) *UnverifyCollection {
-	inst.AccountMetaSlice[3] = ag_solanago.Meta(collectionMint)
+	inst.AccountMetaSlice[2] = ag_solanago.Meta(collectionMint)
 	return inst
 }
 
 // GetCollectionMintAccount gets the "collectionMint" account.
 // Mint of the Collection
 func (inst *UnverifyCollection) GetCollectionMintAccount() *ag_solanago.AccountMeta {
+	return inst.AccountMetaSlice.Get(2)
+}
+
+// SetCollectionAccount sets the "collection" account.
+// Metadata Account of the Collection
+func (inst *UnverifyCollection) SetCollectionAccount(collection ag_solanago.PublicKey) *UnverifyCollection {
+	inst.AccountMetaSlice[3] = ag_solanago.Meta(collection)
+	return inst
+}
+
+// GetCollectionAccount gets the "collection" account.
+// Metadata Account of the Collection
+func (inst *UnverifyCollection) GetCollectionAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(3)
 }
 
-// SetCollectionMetadataAccount sets the "collectionMetadata" account.
-// Metadata Account of the Collection
-func (inst *UnverifyCollection) SetCollectionMetadataAccount(collectionMetadata ag_solanago.PublicKey) *UnverifyCollection {
-	inst.AccountMetaSlice[4] = ag_solanago.Meta(collectionMetadata)
+// SetCollectionMasterEditionAccountAccount sets the "collectionMasterEditionAccount" account.
+// MasterEdition2 Account of the Collection Token
+func (inst *UnverifyCollection) SetCollectionMasterEditionAccountAccount(collectionMasterEditionAccount ag_solanago.PublicKey) *UnverifyCollection {
+	inst.AccountMetaSlice[4] = ag_solanago.Meta(collectionMasterEditionAccount)
 	return inst
 }
 
-// GetCollectionMetadataAccount gets the "collectionMetadata" account.
-// Metadata Account of the Collection
-func (inst *UnverifyCollection) GetCollectionMetadataAccount() *ag_solanago.AccountMeta {
+// GetCollectionMasterEditionAccountAccount gets the "collectionMasterEditionAccount" account.
+// MasterEdition2 Account of the Collection Token
+func (inst *UnverifyCollection) GetCollectionMasterEditionAccountAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(4)
 }
 
-// SetMasterEditionV2Account sets the "masterEditionV2" account.
-// MasterEdition2 Account of the Collection Token
-func (inst *UnverifyCollection) SetMasterEditionV2Account(masterEditionV2 ag_solanago.PublicKey) *UnverifyCollection {
-	inst.AccountMetaSlice[5] = ag_solanago.Meta(masterEditionV2)
+// SetCollectionAuthorityRecordAccount sets the "collectionAuthorityRecord" account.
+// Collection Authority Record PDA
+func (inst *UnverifyCollection) SetCollectionAuthorityRecordAccount(collectionAuthorityRecord ag_solanago.PublicKey) *UnverifyCollection {
+	inst.AccountMetaSlice[5] = ag_solanago.Meta(collectionAuthorityRecord)
 	return inst
 }
 
-// GetMasterEditionV2Account gets the "masterEditionV2" account.
-// MasterEdition2 Account of the Collection Token
-func (inst *UnverifyCollection) GetMasterEditionV2Account() *ag_solanago.AccountMeta {
+// GetCollectionAuthorityRecordAccount gets the "collectionAuthorityRecord" account (optional).
+// Collection Authority Record PDA
+func (inst *UnverifyCollection) GetCollectionAuthorityRecordAccount() *ag_solanago.AccountMeta {
 	return inst.AccountMetaSlice.Get(5)
 }
 
@@ -146,17 +146,17 @@ func (inst *UnverifyCollection) Validate() error {
 			return errors.New("accounts.CollectionAuthority is not set")
 		}
 		if inst.AccountMetaSlice[2] == nil {
-			return errors.New("accounts.Payer is not set")
-		}
-		if inst.AccountMetaSlice[3] == nil {
 			return errors.New("accounts.CollectionMint is not set")
 		}
+		if inst.AccountMetaSlice[3] == nil {
+			return errors.New("accounts.Collection is not set")
+		}
 		if inst.AccountMetaSlice[4] == nil {
-			return errors.New("accounts.CollectionMetadata is not set")
+			return errors.New("accounts.CollectionMasterEditionAccount is not set")
 		}
-		if inst.AccountMetaSlice[5] == nil {
-			return errors.New("accounts.MasterEditionV2 is not set")
-		}
+
+		// [5] = CollectionAuthorityRecord is optional
+
 	}
 	return nil
 }
@@ -174,12 +174,12 @@ func (inst *UnverifyCollection) EncodeToTree(parent ag_treeout.Branches) {
 
 					// Accounts of the instruction:
 					instructionBranch.Child("Accounts[len=6]").ParentFunc(func(accountsBranch ag_treeout.Branches) {
-						accountsBranch.Child(ag_format.Meta("           metadata", inst.AccountMetaSlice.Get(0)))
-						accountsBranch.Child(ag_format.Meta("collectionAuthority", inst.AccountMetaSlice.Get(1)))
-						accountsBranch.Child(ag_format.Meta("              payer", inst.AccountMetaSlice.Get(2)))
-						accountsBranch.Child(ag_format.Meta("     collectionMint", inst.AccountMetaSlice.Get(3)))
-						accountsBranch.Child(ag_format.Meta(" collectionMetadata", inst.AccountMetaSlice.Get(4)))
-						accountsBranch.Child(ag_format.Meta("    masterEditionV2", inst.AccountMetaSlice.Get(5)))
+						accountsBranch.Child(ag_format.Meta("                 metadata", inst.AccountMetaSlice.Get(0)))
+						accountsBranch.Child(ag_format.Meta("      collectionAuthority", inst.AccountMetaSlice.Get(1)))
+						accountsBranch.Child(ag_format.Meta("           collectionMint", inst.AccountMetaSlice.Get(2)))
+						accountsBranch.Child(ag_format.Meta("               collection", inst.AccountMetaSlice.Get(3)))
+						accountsBranch.Child(ag_format.Meta("  collectionMasterEdition", inst.AccountMetaSlice.Get(4)))
+						accountsBranch.Child(ag_format.Meta("collectionAuthorityRecord", inst.AccountMetaSlice.Get(5)))
 					})
 				})
 		})
@@ -197,15 +197,15 @@ func NewUnverifyCollectionInstruction(
 	// Accounts:
 	metadata ag_solanago.PublicKey,
 	collectionAuthority ag_solanago.PublicKey,
-	payer ag_solanago.PublicKey,
 	collectionMint ag_solanago.PublicKey,
-	collectionMetadata ag_solanago.PublicKey,
-	masterEditionV2 ag_solanago.PublicKey) *UnverifyCollection {
+	collection ag_solanago.PublicKey,
+	collectionMasterEditionAccount ag_solanago.PublicKey,
+	collectionAuthorityRecord ag_solanago.PublicKey) *UnverifyCollection {
 	return NewUnverifyCollectionInstructionBuilder().
 		SetMetadataAccount(metadata).
 		SetCollectionAuthorityAccount(collectionAuthority).
-		SetPayerAccount(payer).
 		SetCollectionMintAccount(collectionMint).
-		SetCollectionMetadataAccount(collectionMetadata).
-		SetMasterEditionV2Account(masterEditionV2)
+		SetCollectionAccount(collection).
+		SetCollectionMasterEditionAccountAccount(collectionMasterEditionAccount).
+		SetCollectionAuthorityRecordAccount(collectionAuthorityRecord)
 }
